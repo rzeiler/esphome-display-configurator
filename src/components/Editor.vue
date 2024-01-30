@@ -4,15 +4,37 @@
       <button class="btn btn-primary m-2" @click="addLabel"><span class="mdi mdi-format-text"></span></button>
       <button class="btn btn-primary m-2" @click="addFont = true"><span class="mdi mdi-format-font"></span></button>
     </div>
-    <div class="bg-body-tertiary">
-      <div class="board" style="scale: 2;">
-        <div id="display" ref=display>
+    <div class="bg-body-tertiary d-flex flex-column ">
+      <div class="p-4">
+        <h6 class="ps-2">Display Size</h6>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Width</span>
+          <input type="number" class="form-control" v-model="display.width" placeholder="128">
+        </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Height</span>
+          <input type="number" class="form-control" v-model="display.height" placeholder="64">
+        </div>
+      </div>
+
+
+
+
+      <div class="board shadow  align-self-center" style="scale: 2;">
+        <div id="display" ref=display :style="{ 'width': display.width + 'px', 'height': display.height + 'px' }">
           <label v-for="(item) in label" :key="item.id"
             :style="{ 'left': item.left + 'px', 'top': item.top + 'px', 'font-size': item.font.size + 'px', 'font-family': item.font.name }">
             {{ item.text }}
           </label>
         </div>
+        <div class="hole position-absolute top-0 start-0 rounded-circle" />
+        <div class="hole position-absolute top-0 end-0 rounded-circle" />
+        <div class="hole position-absolute bottom-0 start-0 rounded-circle" />
+        <div class="hole position-absolute bottom-0 end-0 rounded-circle" />
+        <div class="line position-absolute bottom-0 end-50  " />
       </div>
+
+
     </div>
     <div class="d-flex flex-column flex-grow-1">
       <div class="bg-secondary-subtle flex-grow-1 d-flex flex-column overflow-auto">
@@ -73,12 +95,9 @@
 </template>
 
 <script>
+
 export default {
   name: "UiEditor",
-  components: {},
-  props: {
-    msg: String,
-  },
   data: function () {
     return {
       label: [],
@@ -86,7 +105,11 @@ export default {
       choosFont: null,
       addFont: false,
       fontData: { name: '', size: 10 },
-      code: ''
+      code: '',
+      display: {
+        width: 128,
+        height: 64
+      }
     };
   },
   mounted() {
@@ -172,6 +195,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+
+
 #uieditor {
 
   width: 100vw;
@@ -200,5 +226,17 @@ label {
   user-select: none;
   position: absolute;
   color: #fff;
+}
+
+.hole {
+  border: 2px solid #aaa;
+  height: 12px;
+  width: 12px;
+  background-color: rgba(var(--bs-tertiary-bg-rgb), var(--bs-bg-opacity)) !important;
+}
+
+.line {
+  background-color: red;
+
 }
 </style>
