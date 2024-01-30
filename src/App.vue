@@ -8,8 +8,7 @@
 
 <script>
 import UiEditor from './components/Editor.vue'
- 
- 
+  
 export default {
   name: 'App',
   components: {
