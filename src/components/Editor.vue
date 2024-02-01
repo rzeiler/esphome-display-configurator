@@ -1,29 +1,76 @@
 <template>
-  <div id="uieditor" @click="buildCode" class="d-flex align-items-stretch overflow-hidden    ">
-    <div class="bg-primary-subtle d-flex flex-column">
-      <button class="btn btn-primary m-2" @click="addLabel"><span class="mdi mdi-format-text"></span></button>
-      <button class="btn btn-primary m-2" @click="addFont = true"><span class="mdi mdi-format-font"></span></button>
+  <div
+    id="uieditor"
+    @click="buildCode"
+    class="d-flex align-items-stretch overflow-hidden"
+  >
+
+ 
+    <div class="bg-primary-subtle d-flex flex-column m-3 rounded p-2 shadow">
+      <button class="btn btn-primary m-2 text-white" @click="addLabel">
+        <span class="mdi mdi-format-text fs-5"></span>
+      </button>
+      <button class="btn btn-primary m-2 text-white" @click="addFont = true">
+        <span class="mdi mdi-format-font fs-5"></span>
+      </button>
+      <span class="flex-grow-1"  >
+      </span>
+
+  
+
+
+       <button class="btn btn-primary m-2 text-white  position-relative d-none" >
+        <span class="mdi mdi-refresh fs-5"></span> 
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1 ">4<span class="visually-hidden">unread messages</span></span>
+      </button>
+
+  
+
+      <a
+        href="https://github.com/rzeiler/esphome-display-configurator"
+        class="btn btn-primary m-2 text-white"
+        ><span class="mdi mdi-github fs-1"></span
+      ></a>
     </div>
-    <div class="bg-body-tertiary d-flex flex-column ">
+    <div class="bg-body-tertiary d-flex flex-column">
       <div class="p-4">
-        <h6 class="ps-2">Display Size</h6>
+        <h6 class="ps-0 display-2 mb-4 ">Display</h6>
         <div class="input-group mb-3">
           <span class="input-group-text">Width</span>
-          <input type="number" class="form-control" v-model="display.width" placeholder="128">
+          <input
+            type="number"
+            class="form-control"
+            v-model="display.width"
+            placeholder="128"
+          />
         </div>
         <div class="input-group mb-3">
           <span class="input-group-text">Height</span>
-          <input type="number" class="form-control" v-model="display.height" placeholder="64">
+          <input
+            type="number"
+            class="form-control"
+            v-model="display.height"
+            placeholder="64"
+          />
         </div>
       </div>
 
-
-
-
-      <div class="board shadow  align-self-center" style="scale: 2;">
-        <div id="display" ref=display :style="{ 'width': display.width + 'px', 'height': display.height + 'px' }">
-          <label v-for="(item) in label" :key="item.id"
-            :style="{ 'left': item.left + 'px', 'top': item.top + 'px', 'font-size': item.font.size + 'px', 'font-family': item.font.name }">
+      <div class="board shadow align-self-center" style="scale: 2">
+        <div
+          id="display"
+          ref="display"
+          :style="{ width: display.width + 'px', height: display.height + 'px' }"
+        >
+          <label
+            v-for="item in label"
+            :key="item.id"
+            :style="{
+              left: item.left + 'px',
+              top: item.top + 'px',
+              'font-size': item.font.size + 'px',
+              'font-family': item.font.name,
+            }"
+          >
             {{ item.text }}
           </label>
         </div>
@@ -31,71 +78,136 @@
         <div class="hole position-absolute top-0 end-0 rounded-circle" />
         <div class="hole position-absolute bottom-0 start-0 rounded-circle" />
         <div class="hole position-absolute bottom-0 end-0 rounded-circle" />
-        <div class="line position-absolute bottom-0 end-50  " />
+        <div class="line position-absolute bottom-0 end-50" />
       </div>
-
-
     </div>
     <div class="d-flex flex-column flex-grow-1">
-      <div class="bg-secondary-subtle flex-grow-1 d-flex flex-column overflow-auto">
+      <div class="flex-grow-1 d-flex flex-column overflow-auto">
         <div class="p-4 flex-grow-1">
-          <div class="input-group mb-3" v-for="(item) in label" :key="item.id">
-            <span class="input-group-text">Text</span>
-            <input type="text" class="form-control" v-model="item.text" placeholder="Hello world" aria-label="Text"
-              aria-describedby="Text">
-            <span class="input-group-text">Top</span>
-            <input type="number" v-model="item.top" class="form-control" min="0" :max="item.maxHeight" />
-            <span class="input-group-text">Left</span>
-            <input type="number" v-model="item.left" class="form-control" min="0" :max="item.maxWidth" />
-            <button class="btn btn-light" style="z-index:unset;" @click="choosFont = item"> {{ item.font.name }} </button>
-            <button class="btn btn-danger" style="z-index:unset;" @click="remove(item.id)"><span
-                class="mdi mdi-trash-can-outline me-1"></span>Remove</button>
+          <h3>Text</h3>
+
+          <div class="card mb-2 p-2 shadow-sm">
+            <div class="input-group mb-3" v-for="item in label" :key="item.id">
+              <span class="input-group-text">Text</span>
+              <input
+                type="text"
+                class="form-control"
+                v-model="item.text"
+                placeholder="Hello world"
+                aria-label="Text"
+                aria-describedby="Text"
+              />
+              <span class="input-group-text">Top</span>
+              <input
+                type="number"
+                v-model="item.top"
+                class="form-control"
+                min="0"
+                :max="item.maxHeight"
+              />
+              <span class="input-group-text">Left</span>
+              <input
+                type="number"
+                v-model="item.left"
+                class="form-control"
+                min="0"
+                :max="item.maxWidth"
+              />
+              <button
+                class="btn btn-light"
+                style="z-index: unset"
+                @click="choosFont = item"
+              >
+                {{ item.font.name }}
+              </button>
+              <button
+                class="btn btn-danger"
+                style="z-index: unset"
+                @click="remove(item.id)"
+              >
+                <span class="mdi mdi-trash-can-outline me-1"></span>Remove
+              </button>
+            </div>
           </div>
-          <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
-            <span class="input-group-text">{{ font.name }}</span>
-            <input type="number" class="form-control" v-model="font.size" />
-            <button class="btn btn-danger" style="z-index:unset;" @click="removeFont(font)"><span
-                class="mdi mdi-trash-can-outline me-1"></span>Remove</button>
+          <h3>Font</h3>
+          <div class="card mb-2 p-2 shadow-sm">
+            <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
+              <span class="input-group-text">{{ font.name }}</span>
+              <input type="number" class="form-control" v-model="font.size" />
+              <button
+                class="btn btn-danger"
+                style="z-index: unset"
+                @click="removeFont(font)"
+              >
+                <span class="mdi mdi-trash-can-outline me-1"></span>Remove
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      <pre class="p-4 bg-dark  text-white m-0 " v-html="code"></pre>
-      <div v-if="choosFont" @click="choosFont = false"
+      <pre class="card p-4 bg-dark text-white m-4" v-html="code"></pre>
+      <div
+        v-if="choosFont"
+        @click="choosFont = false"
         class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
-        style="--bs-bg-opacity: .5;">
+        style="--bs-bg-opacity: 0.5"
+      >
         <div class="list-group">
-          <button type="button" v-for="font in fonts" :key="font.id" class="list-group-item list-group-item-action  "
-            @click="changeFont(font)">{{ font.name }}</button>
+          <button
+            type="button"
+            v-for="font in fonts"
+            :key="font.id"
+            class="list-group-item list-group-item-action"
+            @click="changeFont(font)"
+          >
+            {{ font.name }}
+          </button>
         </div>
       </div>
-      <div v-if="addFont"
+      <div
+        v-if="addFont"
         class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
-        style="--bs-bg-opacity: .5;">
+        style="--bs-bg-opacity: 0.5"
+      >
         <div class="bg-white shadow p-0 rounded">
-          <button type="button" class="btn-close m-1  " @click="addFont = false" aria-label="Close"
-            style=" float: right; "></button>
+          <button
+            type="button"
+            class="btn-close m-1"
+            @click="addFont = false"
+            aria-label="Close"
+            style="float: right"
+          ></button>
 
-          <div class=" input-group  m-4" style="width: 700px; ">
+          <div class="input-group m-4" style="width: 700px">
             <span class="input-group-text">Google Font</span>
-            <input type="text" class="form-control" v-model="fontData.name"
-              placeholder="Roboto, Montserrat, Raleway,Open Sans..." aria-label="Text" aria-describedby="Text">
+            <input
+              type="text"
+              class="form-control"
+              v-model="fontData.name"
+              placeholder="Roboto, Montserrat, Raleway,Open Sans..."
+              aria-label="Text"
+              aria-describedby="Text"
+            />
             <span class="input-group-text">Size</span>
-            <input type="number" class="form-control" v-model="fontData.size" value="10" min="0" max="30" />
-            <button class="btn btn-danger" style="z-index:unset;" @click="addNewFont"><span
-                class="mdi mdi-check me-1"></span>Add</button>
+            <input
+              type="number"
+              class="form-control"
+              v-model="fontData.size"
+              value="10"
+              min="0"
+              max="30"
+            />
+            <button class="btn btn-danger" style="z-index: unset" @click="addNewFont">
+              <span class="mdi mdi-check me-1"></span>Add
+            </button>
           </div>
         </div>
-
-
-
-
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
 export default {
   name: "UiEditor",
   data: function () {
@@ -104,25 +216,23 @@ export default {
       fonts: [],
       choosFont: null,
       addFont: false,
-      fontData: { name: '', size: 10 },
-      code: '',
+      fontData: { name: "", size: 10 },
+      code: "",
       display: {
         width: 128,
-        height: 64
-      }
+        height: 64,
+      },
     };
   },
   mounted() {
-    this.fontData = { name: 'Open+Sans', size: 15 };
+    this.fontData = { name: "Open+Sans", size: 15 };
     this.addNewFont();
     this.addLabel();
-
   },
   methods: {
     changeFont(font) {
-      this.choosFont.font = font
+      this.choosFont.font = font;
       this.choosFont = null;
-
     },
     removeFont(font) {
       this.fonts = this.fonts.filter((obj) => {
@@ -131,7 +241,7 @@ export default {
     },
     buildCode() {
       this.code = `# Example configuration entry Font `;
-      this.code += '\nfont:';
+      this.code += "\nfont:";
       this.fonts.forEach((i) => {
         this.code += `\n  - file: "gfonts://${i.name}"`;
         this.code += `\n    id: ${i.id}`;
@@ -149,27 +259,22 @@ export default {
       });
 
       ///console.log(this.$refs.display.scrollHeight)
-
     },
     addNewFont() {
-
       this.fonts.push({
         name: this.fontData.name,
         size: this.fontData.size,
-        id: "font" + this.fonts.length
+        id: "font" + this.fonts.length,
       });
       let font = this.fonts[this.fonts.length - 1];
 
-
-      let file = document.createElement('link');
+      let file = document.createElement("link");
       file.id = font.id;
-      file.rel = 'stylesheet';
-      file.href = `https://fonts.googleapis.com/css2?family=${font.name}`
-      document.head.appendChild(file)
+      file.rel = "stylesheet";
+      file.href = `https://fonts.googleapis.com/css2?family=${font.name}`;
+      document.head.appendChild(file);
 
       this.buildCode();
-
-
     },
 
     remove(index) {
@@ -185,21 +290,17 @@ export default {
         id: this.label.length,
         font: this.fonts[0],
         maxWidth: 128,
-        maxHeight: 64
+        maxHeight: 64,
       });
       this.buildCode();
-    }
-  }
+    },
+  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-
-
 #uieditor {
-
   width: 100vw;
   height: 100vh;
 }
@@ -237,6 +338,5 @@ label {
 
 .line {
   background-color: red;
-
 }
 </style>
