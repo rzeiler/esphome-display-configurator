@@ -4,8 +4,6 @@
     @click="buildCode"
     class="d-flex align-items-stretch overflow-hidden"
   >
-
- 
     <div class="bg-primary-subtle d-flex flex-column m-3 rounded p-2 shadow">
       <button class="btn btn-primary m-2 text-white" @click="addLabel">
         <span class="mdi mdi-format-text fs-5"></span>
@@ -13,18 +11,15 @@
       <button class="btn btn-primary m-2 text-white" @click="addFont = true">
         <span class="mdi mdi-format-font fs-5"></span>
       </button>
-      <span class="flex-grow-1"  >
-      </span>
+      <span class="flex-grow-1"> </span>
 
-  
-
-
-       <button class="btn btn-primary m-2 text-white  position-relative d-none" >
-        <span class="mdi mdi-refresh fs-5"></span> 
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1 ">4<span class="visually-hidden">unread messages</span></span>
+      <button class="btn btn-primary m-2 text-white position-relative">
+        <span class="mdi mdi-refresh fs-5"></span>
+        <span
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1"
+          >{{ history }}<span class="visually-hidden">history</span></span
+        >
       </button>
-
-  
 
       <a
         href="https://github.com/rzeiler/esphome-display-configurator"
@@ -34,7 +29,7 @@
     </div>
     <div class="bg-body-tertiary d-flex flex-column">
       <div class="p-4">
-        <h6 class="ps-0 display-2 mb-4 ">Display</h6>
+        <h6 class="ps-0 display-2 mb-4">Display</h6>
         <div class="input-group mb-3">
           <span class="input-group-text">Width</span>
           <input
@@ -222,6 +217,7 @@ export default {
         width: 128,
         height: 64,
       },
+      history: 0,
     };
   },
   mounted() {
@@ -240,6 +236,28 @@ export default {
       });
     },
     buildCode() {
+      let _history = [];
+
+      if (localStorage.history != undefined) {
+        _history = JSON.parse(localStorage.history);
+      }
+
+      _history.push(
+        JSON.stringify({
+          label: this.label,
+          fonts: this.font,
+          choosFont: null,
+          addFont: false,
+          fontData: { name: "", size: 10 },
+          code: this.code,
+          display: this.display,
+        })
+      );
+      console.log(_history);
+
+      localStorage.history = JSON.stringify(_history);
+      this.history = _history.length;
+
       this.code = `# Example configuration entry Font `;
       this.code += "\nfont:";
       this.fonts.forEach((i) => {
