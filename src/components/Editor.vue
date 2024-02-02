@@ -4,7 +4,7 @@
     @click="buildCode"
     class="d-flex align-items-stretch overflow-hidden"
   >
-    <div class="bg-primary-subtle d-flex flex-column m-3 rounded p-2 shadow">
+    <div class="bg-primary-subtle d-flex flex-column m-3 rounded p-2 shadow-sm">
       <button class="btn btn-primary m-2 text-white" @click="addLabel">
         <span class="mdi mdi-format-text fs-5"></span>
       </button>
@@ -97,6 +97,7 @@
                 type="number"
                 v-model="item.top"
                 class="form-control"
+                style="max-width: 100px;"
                 min="0"
                 :max="item.maxHeight"
               />
@@ -105,6 +106,7 @@
                 type="number"
                 v-model="item.left"
                 class="form-control"
+                style="max-width: 100px;"
                 min="0"
                 :max="item.maxWidth"
               />
@@ -140,7 +142,7 @@
           </div>
         </div>
       </div>
-      <pre class="card p-4 bg-dark text-white m-4" v-html="code"></pre>
+      <pre class="card p-4 bg-dark text-white m-4 shadow" v-html="code"></pre>
       <div
         v-if="choosFont"
         @click="choosFont = false"
@@ -199,12 +201,19 @@
         </div>
       </div>
     </div>
+    <list-history v-if="showHistory" @set-history="setHistory"></list-history>
   </div>
 </template>
 
 <script>
+
+import listHistory from "./History.vue";
+
 export default {
   name: "UiEditor",
+  components:{
+    listHistory
+  },
   data: function () {
     return {
       label: [],
@@ -218,6 +227,7 @@ export default {
         height: 64,
       },
       history: 0,
+      showHistory:true
     };
   },
   mounted() {
@@ -226,6 +236,10 @@ export default {
     this.addLabel();
   },
   methods: {
+    setHistory(n){
+      alert("set hist");
+      console.log(n);
+    },
     changeFont(font) {
       this.choosFont.font = font;
       this.choosFont = null;
