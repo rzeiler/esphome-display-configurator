@@ -8,6 +8,7 @@ import "./scss/app.scss"
 import "../node_modules/@mdi/font/css/materialdesignicons.css"
 import './registerServiceWorker'
 
+import drag from "v-drag"
 
 Vue.config.productionTip = false
 
@@ -21,7 +22,12 @@ Vue.mixin({
   }
 })
 
- 
+Vue.use(drag, {
+  eventClass: {
+    down: "is-pressed",
+    move: "is-moving"
+  }
+});
 
 new Vue({
   render: h => h(App)

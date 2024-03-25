@@ -1,29 +1,44 @@
 <template>
-  <div id="uieditor" @click="buildCode" class="d-flex align-items-stretch overflow-hidden position-relative">
+  <div
+    id="uieditor"
+    @click="buildCode"
+    class="d-flex align-items-stretch overflow-hidden position-relative"
+  >
     <div class="bg-primary-subtle d-flex flex-column m-3 rounded p-2 shadow-sm">
-      <button class="btn btn-primary m-2 text-white" @click="addLabel" data-bs-toggle="tooltip" title="Add new Text">
+      <button
+        class="btn btn-primary m-2 text-white"
+        @click="addLabel"
+        data-bs-toggle="tooltip"
+        title="Add new Text"
+      >
         <span class="mdi mdi-format-text fs-5"></span>
       </button>
-      <button class="btn btn-primary m-2 text-white" @click="addFont = true" data-bs-toggle="tooltip"
-        title="Add new Font from Google Fonts">
+      <button
+        class="btn btn-primary m-2 text-white"
+        @click="addFont = true"
+        data-bs-toggle="tooltip"
+        title="Add new Font from Google Fonts"
+      >
         <span class="mdi mdi-format-font fs-5"></span>
       </button>
       <span class="flex-grow-1"> </span>
 
       <button class="d-none btn btn-primary m-2 text-white position-relative">
         <span class="mdi mdi-refresh fs-5"></span>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1">{{ history
-        }}<span class="visually-hidden">history</span></span>
+        <span
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1"
+          >{{ history }}<span class="visually-hidden">history</span></span
+        >
       </button>
 
-      <a href="https://github.com/rzeiler/esphome-display-configurator" class="btn btn-primary m-2 text-white"><span
-          class="mdi mdi-github fs-1"></span></a>
+      <a
+        href="https://github.com/rzeiler/esphome-display-configurator"
+        class="btn btn-primary m-2 text-white"
+        ><span class="mdi mdi-github fs-1"></span
+      ></a>
     </div>
 
-
     <display :labels="label"></display>
-
-
 
     <div class="d-flex flex-column flex-grow-1">
       <div class="flex-grow-1 d-flex flex-column overflow-auto">
@@ -33,18 +48,44 @@
           <div class="card mb-2 p-2 shadow-sm">
             <div class="input-group mb-3" v-for="item in label" :key="item.id">
               <span class="input-group-text">Text</span>
-              <input type="text" class="form-control" v-model="item.text" placeholder="Hello world" aria-label="Text"
-                aria-describedby="Text" />
+              <input
+                type="text"
+                class="form-control"
+                v-model="item.text"
+                placeholder="Hello world"
+                aria-label="Text"
+                aria-describedby="Text"
+              />
               <span class="input-group-text">Top</span>
-              <input type="number" v-model="item.top" class="form-control" style="max-width: 100px;" min="0"
-                :max="item.maxHeight" />
+              <input
+                type="number"
+                v-model="item.top"
+                class="form-control"
+                style="max-width: 100px"
+                min="0"
+                :max="item.maxHeight"
+              />
               <span class="input-group-text">Left</span>
-              <input type="number" v-model="item.left" class="form-control" style="max-width: 100px;" min="0"
-                :max="item.maxWidth" />
-              <button class="btn btn-light" style="z-index: unset" @click="choosFont = item">
+              <input
+                type="number"
+                v-model="item.left"
+                class="form-control"
+                style="max-width: 100px"
+                min="0"
+                :max="item.maxWidth"
+              />
+              <button
+                class="btn btn-light"
+                style="z-index: unset"
+                @click="choosFont = item"
+              >
                 {{ item.font.name }}
               </button>
-              <button class="btn btn-danger" style="z-index: unset" @click="remove(item.id)">
+              <button
+                class="btn btn-danger"
+                style="z-index: unset"
+                @click="remove(item.id)"
+              >
                 <span class="mdi mdi-trash-can-outline me-1"></span>Remove
               </button>
             </div>
@@ -53,8 +94,17 @@
           <div class="card mb-2 p-2 shadow-sm">
             <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
               <span class="input-group-text">{{ font.name }}</span>
-              <input type="number" class="form-control" v-model="font.size" />
-              <button class="btn btn-danger" style="z-index: unset" @click="removeFont(font)">
+              <input
+                type="number"
+                class="form-control"
+                v-model="font.size"
+                @change="changeSize(font)"
+              />
+              <button
+                class="btn btn-danger"
+                style="z-index: unset"
+                @click="removeFont(font)"
+              >
                 <span class="mdi mdi-trash-can-outline me-1"></span>Remove
               </button>
             </div>
@@ -62,29 +112,57 @@
         </div>
       </div>
       <pre class="card p-4 bg-dark text-white m-4 shadow" v-html="code"></pre>
-      <div v-if="choosFont" @click="choosFont = false"
+      <div
+        v-if="choosFont"
+        @click="choosFont = false"
         class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
-        style="--bs-bg-opacity: 0.5">
+        style="--bs-bg-opacity: 0.5"
+      >
         <div class="list-group">
-          <button type="button" v-for="font in fonts" :key="font.id" class="list-group-item list-group-item-action"
-            @click="changeFont(font)">
+          <button
+            type="button"
+            v-for="font in fonts"
+            :key="font.id"
+            class="list-group-item list-group-item-action"
+            @click="changeFont(font)"
+          >
             {{ font.name }}
           </button>
         </div>
       </div>
-      <div v-if="addFont"
+      <div
+        v-if="addFont"
         class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
-        style="--bs-bg-opacity: 0.5">
+        style="--bs-bg-opacity: 0.5"
+      >
         <div class="bg-white shadow p-0 rounded">
-          <button type="button" class="btn-close m-1" @click="addFont = false" aria-label="Close"
-            style="float: right"></button>
+          <button
+            type="button"
+            class="btn-close m-1"
+            @click="addFont = false"
+            aria-label="Close"
+            style="float: right"
+          ></button>
 
           <div class="input-group m-4" style="width: 700px">
             <span class="input-group-text">Google Font</span>
-            <input type="text" class="form-control" v-model="fontData.name"
-              placeholder="Roboto, Montserrat, Raleway,Open Sans..." aria-label="Text" aria-describedby="Text" />
+            <input
+              type="text"
+              class="form-control"
+              v-model="fontData.name"
+              placeholder="Roboto, Montserrat, Raleway,Open Sans..."
+              aria-label="Text"
+              aria-describedby="Text"
+            />
             <span class="input-group-text">Size</span>
-            <input type="number" class="form-control" v-model="fontData.size" value="10" min="0" max="30" />
+            <input
+              type="number"
+              class="form-control"
+              v-model="fontData.size"
+              value="10"
+              min="0"
+              max="30"
+            />
             <button class="btn btn-danger" style="z-index: unset" @click="addNewFont">
               <span class="mdi mdi-check me-1"></span>Add
             </button>
@@ -92,20 +170,16 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
-
-
 import display from "./Display.vue";
-
 
 export default {
   name: "UiEditor",
   components: {
-    display
+    display,
   },
   data: function () {
     return {
@@ -115,17 +189,15 @@ export default {
       addFont: false,
       fontData: { name: "", size: 10 },
       code: "",
-      history: 0
+      history: 0,
     };
   },
   mounted() {
-
     if (localStorage.history != undefined) {
       let lastsettings = JSON.parse(localStorage.history);
       this.label = lastsettings.label;
       this.fonts = lastsettings.fonts;
       this.buildCode();
-
     } else {
       this.fontData = { name: "Open+Sans", size: 15 };
       this.addNewFont();
@@ -135,6 +207,14 @@ export default {
     this.setTooltip();
   },
   methods: {
+    changeSize(item) {
+      this.label.forEach((obj) => {
+        console.log(obj.font.id, item.id);
+        if (obj.font.id == item.id) {
+          obj.font.size = item.size;
+        }
+      });
+    },
     setDisplay(d) {
       this.display = d;
       console.log("change display", d);
@@ -153,14 +233,11 @@ export default {
       });
     },
     buildCode() {
-
       const now = new Date();
       const day = now.getDate();
       const hours = now.getHours();
       const minutes = now.getMinutes();
       const month = now.getMonth();
-
-
 
       this.code = `# Example configuration entry Font `;
       this.code += "\nfont:";
@@ -180,13 +257,12 @@ export default {
         this.code += `\n      it.printf(${i.left},${i.top}, id(${i.font.id}), "${i.text}");`;
       });
 
-
       localStorage.history = JSON.stringify({
-        title: '',
-        text: '',
+        title: "",
+        text: "",
         time: `${day}.${month} / ${hours}:${minutes}.`,
         label: this.label,
-        fonts: this.fonts
+        fonts: this.fonts,
       });
 
       ///console.log(this.$refs.display.scrollHeight)
@@ -220,8 +296,6 @@ export default {
         text: "Hello World",
         id: this.label.length,
         font: this.fonts[0],
-        maxWidth: 128,
-        maxHeight: 64,
       });
       this.buildCode();
     },

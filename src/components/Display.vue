@@ -34,25 +34,22 @@
     </div>
     <div
       ref="dis"
-      data-bs-toggle="tooltip"
-      title="Scroll to resize"
       :class="cssClass"
       :style="{ scale: display.scale }"
       @mousewheel="handleScroll"
     >
       <div
         id="screen"
-        :style="{
-          width: display.width + 'px',
-          height: display.height + 'px',
-          backgroundColor: display.backgroundColor,
-          color: display.color,
-        }"
-        class="shadow position-relative"
+        class="shadow position-relative overflow-hidden"
+        @mousedown="mouseDown"
+        @mousemove="mouseMove"
+        @mouseup="mouseUp"
       >
         <label
+          class="text-nowrap"
           v-for="item in labels"
           :key="item.id"
+          :data-id="item.id"
           :style="{
             left: item.left + 'px',
             top: item.top + 'px',
@@ -63,22 +60,7 @@
           {{ item.text }}
         </label>
       </div>
-      <div class="hole position-absolute top-0 start-0 rounded-circle" />
-      <div class="hole position-absolute top-0 end-0 rounded-circle" />
-      <div class="hole position-absolute bottom-0 start-0 rounded-circle" />
-      <div class="hole position-absolute bottom-0 end-0 rounded-circle" />
     </div>
-    <svg ref="svg" width="400" height="400" xmlns="http://www.w3.org/2000/svg">
-      <image href="/img/boards/oled128x64.png" height="400" width="400" />
-      <text
-        x="120"
-        y="105"
-        style="font-family: 'Open Sans'; fill: #ffffff; font-size: 10px"
-      >
-        Hello
-      </text>
-    </svg>
-    <canvas ref="canvas" class="border" />
   </div>
 </template>
 
@@ -96,48 +78,81 @@ export default {
   },
   data: function () {
     return {
-      vueCanvas: {},
       displays: [
         {
           name: "OLED",
           class: "oled128x64",
           details: "128x64",
-          width: 128,
-          heigth: 64,
-          scale: 2,
-          src: "./img/boards/oled128x64.png",
+          scale: 1,
         },
         {
           name: "waveshare",
-          class: "waveshare250x122",
+          class: "waveshare250x122 vertical",
           details: "250x122",
-          width: 250,
-          heigth: 122,
-          scale: 2,
+          scale: 1,
         },
       ],
       display: {},
     };
   },
   mounted() {
-    var c = this.$refs.canvas;
-    var ctx = c.getContext("2d");
-    this.vueCanvas = ctx;
-    this.vueCanvas.imageSmoothingEnabled = false;
-
-    if (localStorage.display != undefined) {
-      this.display = JSON.parse(localStorage.display);
-    } else {
-      this.display = this.displays[0];
-    }
+    // if (localStorage.display != undefined) {
+    //   this.display = JSON.parse(localStorage.display);
+    // } else {
+    //   this.display = this.displays[0];
+    // }
     /// test
-    this.display = this.displays[0];
-
-    this.drawBoard();
-
+    this.display = this.displays[1];
     this.setTooltip();
+    this.mouseUp();
   },
   methods: {
+    mouseMove() {
+      if (window.dragEl.target != undefined) {
+        const e = window.event;
+        const el = window.dragEl;
+
+        var x = e.clientX - el.clientX + el.left;
+        var y = e.clientY - el.clientY + el.top;
+        const id = el.id;
+
+        let local_labels = [...this.labels];
+        local_labels[id].left = x;
+        local_labels[id].top = y;
+      }
+    },
+    mouseUp() {
+      const e = window.event;
+
+      window.dragEl = {
+        target: undefined,
+        clientX: 0,
+        clientY: 0,
+        left: 0,
+        top: 0,
+        id: 0,
+      };
+    },
+    mouseDown() {
+      const e = window.event;
+      const id = parseInt(e.target.getAttribute("data-id"));
+
+      // offsetHeight
+      // offsetLeft
+      // offsetParent
+      // offsetTop
+      // offsetWidth
+
+      window.dragEl = {
+        target: e.target,
+        clientX: e.clientX,
+        clientY: e.clientY,
+        left: e.target.offsetLeft,
+        top: e.target.offsetTop,
+        id: id,
+      };
+      console.log(e);
+    },
     onChange(item) {
       this.display = item;
       localStorage.display = JSON.stringify(item);
@@ -149,55 +164,6 @@ export default {
       if (event.deltaY === -120) {
         this.display.scale -= 0.1;
       }
-    },
-    drawBoard() {
-      const svg = this.$refs.svg;
-
-      this.vueCanvas.clearRect(0, 0, 400, 200);
-      const playerImg = new Image();
-      playerImg.src = this.display.src;
-      const ctx = this.vueCanvas;
-      const c = this.$refs.canvas;
-      playerImg.onload = function () {
-        c.width = playerImg.naturalWidth;
-        c.height = playerImg.naturalHeight;
-
-        c.style.width = playerImg.naturalWidth + "px";
-        c.style.height = playerImg.naturalHeight + "px";
-
-        svg.width = playerImg.naturalWidth + "px";
-        svg.height = playerImg.naturalHeight + "px";
-
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(playerImg, 0, 0, playerImg.width, playerImg.height);
-
-        ctx.fillStyle = "#FFFFFF";
-        ctx.font = "10px Open Sans";
-        ctx.fillText("Hello world", 20, 40);
-      };
-    },
-    drawRect() {
-      // clear canvas
-      this.vueCanvas.clearRect(0, 0, 400, 200);
-
-      // draw rect
-
-      this.vueCanvas.beginPath();
-
-      this.vueCanvas.fillStyle = "#FF0000";
-      this.vueCanvas.fillRect(0, 0, 150, 75);
-
-      this.vueCanvas.rect(20, 20, this.rectWidth, 100);
-      this.vueCanvas.fillStyle = "#FF0000";
-      this.vueCanvas.stroke();
-    },
-    addWidth() {
-      this.rectWidth += 10;
-      this.drawRect();
-    },
-    subWidth() {
-      this.rectWidth -= 10;
-      this.drawRect();
     },
   },
   computed: {
@@ -253,13 +219,23 @@ export default {
 
 .waveshare250x122 > div:first-child {
   position: relative;
-  border: 2px solid #fafafa;
-  background-color: #ffffff;
+  border: 1px solid #eee;
+  background-color: #eee;
   box-shadow: 0px 0px 10px #000000;
   margin: -1px 0;
-  color: #111111;
-  width: 128px;
-  height: 64px;
+  color: #333333;
+  width: 250px;
+  height: 122px;
+  overflow: hidden;
+}
+
+.waveshare250x122.vertical {
+  padding: 15px 1px 15px 1px !important;
+}
+
+.waveshare250x122.vertical > div:first-child {
+  height: 250px !important;
+  width: 122px !important;
 }
 
 label {
