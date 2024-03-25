@@ -151,7 +151,6 @@ export default {
         top: e.target.offsetTop,
         id: id,
       };
-      console.log(e);
     },
     onChange(item) {
       this.display = item;
@@ -189,6 +188,17 @@ export default {
   padding: 20px 10px 30px 10px;
   margin: 100px;
   cursor: zoom-in;
+}
+
+#screen:hover > * {
+  opacity: 0.5;
+}
+
+#screen:hover > label:hover {
+  opacity: 1;
+  border: 1px solid #6f42c1;
+  padding: 0;
+  cursor: move;
 }
 
 .board > div:first-child {
@@ -241,6 +251,8 @@ export default {
 label {
   user-select: none;
   position: absolute;
+  border: 1px solid transparent;
+  line-height: 0.8;
 }
 
 .hole {

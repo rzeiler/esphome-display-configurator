@@ -5,7 +5,7 @@
 <span class="flex-grow-1"  />
       <a href="https://github.com/rzeiler/esphome-display-configurator" class="mdi mdi-github text-black"></a>
     </div> -->
-    <UiEditor msg="Welcome to Your Vue.js App" />
+    <UiEditor />
     <div class="p-4">
       display configuration UI by rzeiler &#x40; 2024 |
       <a href="https://esphome.io/components/display/" title="Display Component">
@@ -13,9 +13,7 @@
       </a>
 
       <a href="https://pictogrammers.com/library/mdi/">pictogrammers</a>
-
     </div>
-
   </div>
 </template>
 

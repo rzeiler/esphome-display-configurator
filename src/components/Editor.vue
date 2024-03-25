@@ -248,10 +248,6 @@ export default {
       });
       this.code += `\n\n# Example configuration entry Display `;
       this.code += `\ndisplay:`;
-      this.code += `\n  - platform: ssd1306_i2c`;
-      this.code += `\n    id: olde`;
-      this.code += `\n    reset_pin: GPIO1 # D0`;
-      this.code += `\n    address: 0x3C`;
       this.code += `\n    lambda: |-`;
       this.label.forEach((i) => {
         this.code += `\n      it.printf(${i.left},${i.top}, id(${i.font.id}), "${i.text}");`;
@@ -264,8 +260,6 @@ export default {
         label: this.label,
         fonts: this.fonts,
       });
-
-      ///console.log(this.$refs.display.scrollHeight)
     },
     addNewFont() {
       this.fonts.push({
