@@ -122,8 +122,6 @@ export default {
       }
     },
     mouseUp() {
-      const e = window.event;
-
       window.dragEl = {
         target: undefined,
         clientX: 0,
@@ -253,6 +251,7 @@ label {
   position: absolute;
   border: 1px solid transparent;
   line-height: 0.8;
+  
 }
 
 .hole {
