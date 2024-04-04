@@ -46,16 +46,11 @@
         @mouseup="mouseUp"
       >
         <label
-          class="text-nowrap"
+          :class="labelClass(item)"
           v-for="item in labels"
           :key="item.id"
           :data-id="item.id"
-          :style="{
-            left: item.left + 'px',
-            top: item.top + 'px',
-            'font-size': item.font.size + 'px',
-            'font-family': item.font.name,
-          }"
+          :style="labelStyle(item)"
         >
           {{ item.text }}
         </label>
@@ -96,12 +91,6 @@ export default {
     };
   },
   mounted() {
-    // if (localStorage.display != undefined) {
-    //   this.display = JSON.parse(localStorage.display);
-    // } else {
-    //   this.display = this.displays[0];
-    // }
-    /// test
     this.display = this.displays[1];
     this.setTooltip();
     this.mouseUp();
@@ -162,6 +151,17 @@ export default {
         this.display.scale -= 0.1;
       }
     },
+    labelStyle(item) {
+      return {
+        left: item.left + "px",
+        top: item.top + "px",
+        "font-size": item.font.size + "px",
+        "font-family": item.font.name,
+      };
+    },
+    labelClass(item) {
+      return `${item.style.toLowerCase()} text-nowrap`;
+    },
   },
   computed: {
     cssClass() {
@@ -181,6 +181,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+label.top_center {
+  transform: translateX(-50%);
+}
+label.top_right {
+  transform: translateX(-100%);
+}
+
 .board {
   display: inline-block;
   padding: 20px 10px 30px 10px;
@@ -251,7 +258,6 @@ label {
   position: absolute;
   border: 1px solid transparent;
   line-height: 0.8;
-  
 }
 
 .hole {
