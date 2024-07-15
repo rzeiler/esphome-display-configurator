@@ -1,5 +1,3 @@
-//2,13 '' 250x122px
-
 <template>
   <div class="rounded d-flex flex-column mt-3 mb-3 bg-white shadow ps-3 pe-3">
     <div class="p-4 d-flex">

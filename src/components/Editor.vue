@@ -21,6 +21,17 @@
       >
         <span class="mdi mdi-format-font fs-5"></span>
       </button>
+
+      <button
+        class="btn btn-primary m-2 text-white"
+        @click="chooseImage = true"
+        data-bs-toggle="tooltip"
+        title="Add new Image from pictogrammers"
+      >
+        <span class="mdi mdi-image"></span>
+      </button>
+      <!-- v-if="chooseImage" -->
+
       <span class="flex-grow-1"> </span>
 
       <button class="d-none btn btn-primary m-2 text-white position-relative">
@@ -53,6 +64,17 @@
               :key="idx"
             ></b-label>
           </div>
+
+          <h3>Image</h3>
+
+          <imageSetting
+            v-for="image in images"
+            :key="image.id"
+            :image="image.image"
+            :top="image.top"
+            :left="image.left"
+          />
+
           <h3>Font</h3>
           <div class="card mb-2 p-2 shadow-sm">
             <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
@@ -133,27 +155,35 @@
         </div>
       </div>
     </div>
+    <add_image v-if="chooseImage"></add_image>
   </div>
 </template>
 
 <script>
 import display from "./Display.vue";
 import bLabel from "./LabelSetting.vue";
+import add_image from "./image/add/";
+import imageSetting from "./image/setting/";
+
 export default {
   name: "UiEditor",
   components: {
     display,
     "b-label": bLabel,
+    add_image,
+    imageSetting,
   },
   data: function () {
     return {
       label: [],
       fonts: [],
       choosFont: null,
+      chooseImage: false,
       addFont: false,
       fontData: { name: "", size: 10 },
       code: "",
       history: 0,
+      images: [],
     };
   },
   mounted() {
