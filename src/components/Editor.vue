@@ -24,13 +24,12 @@
 
       <button
         class="btn btn-primary m-2 text-white"
-        @click="chooseImage = true"
+        @click="newImage"
         data-bs-toggle="tooltip"
         title="Add new Image from pictogrammers"
       >
         <span class="mdi mdi-image"></span>
       </button>
-      <!-- v-if="chooseImage" -->
 
       <span class="flex-grow-1"> </span>
 
@@ -49,7 +48,7 @@
       ></a>
     </div>
 
-    <display :labels="label"></display>
+    <display :labels="label" :images="images"></display>
 
     <div class="d-flex flex-column flex-grow-1">
       <div class="flex-grow-1 d-flex flex-column overflow-auto">
@@ -67,12 +66,11 @@
 
           <h3>Image</h3>
 
-          <imageSetting
-            v-for="image in images"
-            :key="image.id"
-            :image="image.image"
-            :top="image.top"
-            :left="image.left"
+          <imageItem
+            v-for="(image, idx) in images"
+            :key="idx"
+            v-model="images[idx]"
+            @delete="deleteImage(image)"
           />
 
           <h3>Font</h3>
@@ -155,30 +153,26 @@
         </div>
       </div>
     </div>
-    <add_image v-if="chooseImage"></add_image>
   </div>
 </template>
 
 <script>
 import display from "./Display.vue";
 import bLabel from "./LabelSetting.vue";
-import add_image from "./image/add/";
-import imageSetting from "./image/setting/";
+import imageItem from "./image/";
 
 export default {
   name: "UiEditor",
   components: {
     display,
     "b-label": bLabel,
-    add_image,
-    imageSetting,
+    imageItem,
   },
   data: function () {
     return {
       label: [],
       fonts: [],
       choosFont: null,
-      chooseImage: false,
       addFont: false,
       fontData: { name: "", size: 10 },
       code: "",
@@ -210,6 +204,20 @@ export default {
     this.setTooltip();
   },
   methods: {
+    deleteImage(img) {
+      this.images = this.images.filter((obj) => {
+        return obj !== img;
+      });
+    },
+    newImage() {
+      this.images.push({
+        image: "mdi mdi-abacus",
+        top: 0,
+        left: 0,
+        id: "image" + this.images.length,
+      });
+      this.buildCode();
+    },
     onChange(e) {
       console.log(e);
     },
@@ -248,7 +256,15 @@ export default {
       const minutes = now.getMinutes();
       const month = now.getMonth();
 
-      this.code = `# Example configuration entry Font `;
+      this.code = `# Example configuration entry Images `;
+      this.code += "\nimages:";
+      this.images.forEach((i) => {
+        this.code += `\n  - file: "${i.image}"`;
+        this.code += `\n    id: ${i.id}`;
+        this.code += `\n    size: 24x24`;
+      });
+
+      this.code += `\n\n# Example configuration entry Font `;
       this.code += "\nfont:";
       this.fonts.forEach((i) => {
         this.code += `\n  - file: "gfonts://${i.name}"`;
@@ -268,6 +284,7 @@ export default {
         time: `${day}.${month} / ${hours}:${minutes}.`,
         label: this.label,
         fonts: this.fonts,
+        images: this.images,
       });
     },
     addNewFont() {

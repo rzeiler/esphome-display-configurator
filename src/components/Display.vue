@@ -52,6 +52,14 @@
         >
           {{ item.text }}
         </label>
+
+        <span
+          v-for="image in images"
+          :key="image.id"
+          :data-id="image.id"
+          :class="image.image"
+          :style="imageStyle(image)"
+        />
       </div>
     </div>
   </div>
@@ -63,6 +71,12 @@ export default {
 
   props: {
     labels: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+    images: {
       type: Array,
       default() {
         return [];
@@ -102,10 +116,23 @@ export default {
         var x = e.clientX - el.clientX + el.left;
         var y = e.clientY - el.clientY + el.top;
         const id = el.id;
+        console.log(id);
+        if (el.target.nodeName == "SPAN") {
+          let local_images = [...this.images];
 
-        let local_labels = [...this.labels];
-        local_labels[id].left = x;
-        local_labels[id].top = y;
+          console.log(el, local_images, id);
+
+          local_images[id].left = x;
+          local_images[id].top = y;
+        }
+        if (el.target.nodeName == "LABEL") {
+          let local_labels = [...this.labels];
+
+          console.log(el, local_labels);
+
+          local_labels[id].left = x;
+          local_labels[id].top = y;
+        }
       }
     },
     mouseUp() {
@@ -157,6 +184,12 @@ export default {
         "font-family": item.font.name,
       };
     },
+    imageStyle(item) {
+      return {
+        left: item.left + "px",
+        top: item.top + "px",
+      };
+    },
     labelClass(item) {
       return `${item.style.toLowerCase()} text-nowrap`;
     },
@@ -197,7 +230,8 @@ label.top_right {
   opacity: 0.5;
 }
 
-#screen:hover > label:hover {
+#screen:hover > label:hover,
+#screen:hover > span.md:hover {
   opacity: 1;
   border: 1px solid #6f42c1;
   padding: 0;
@@ -252,6 +286,13 @@ label.top_right {
 }
 
 label {
+  user-select: none;
+  position: absolute;
+  border: 1px solid transparent;
+  line-height: 0.8;
+}
+
+span.mdi {
   user-select: none;
   position: absolute;
   border: 1px solid transparent;
