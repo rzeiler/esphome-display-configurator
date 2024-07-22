@@ -1,33 +1,16 @@
 <template>
-  <div
-    id="uieditor"
-    @click="buildCode"
-    class="d-flex align-items-stretch overflow-hidden position-relative"
-  >
+  <div id="uieditor" @click="buildCode" class="d-flex align-items-stretch overflow-hidden position-relative vh-100 vw-100 ">
     <div class="bg-primary-subtle d-flex flex-column m-3 rounded p-2 shadow-sm">
-      <button
-        class="btn btn-primary m-2 text-white"
-        @click="addLabel"
-        data-bs-toggle="tooltip"
-        title="Add new Text"
-      >
+      <button class="btn btn-primary m-2 text-white" @click="addLabel" data-bs-toggle="tooltip" title="Add new Text">
         <span class="mdi mdi-format-text fs-5"></span>
       </button>
-      <button
-        class="btn btn-primary m-2 text-white"
-        @click="addFont = true"
-        data-bs-toggle="tooltip"
-        title="Add new Font from Google Fonts"
-      >
+      <button class="btn btn-primary m-2 text-white" @click="addFont = true" data-bs-toggle="tooltip"
+        title="Add new Font from Google Fonts">
         <span class="mdi mdi-format-font fs-5"></span>
       </button>
 
-      <button
-        class="btn btn-primary m-2 text-white"
-        @click="newImage"
-        data-bs-toggle="tooltip"
-        title="Add new Image from pictogrammers"
-      >
+      <button class="btn btn-primary m-2 text-white" @click="newImage" data-bs-toggle="tooltip"
+        title="Add new Image from pictogrammers">
         <span class="mdi mdi-image"></span>
       </button>
 
@@ -35,17 +18,12 @@
 
       <button class="d-none btn btn-primary m-2 text-white position-relative">
         <span class="mdi mdi-refresh fs-5"></span>
-        <span
-          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1"
-          >{{ history }}<span class="visually-hidden">history</span></span
-        >
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1">{{ history
+          }}<span class="visually-hidden">history</span></span>
       </button>
 
-      <a
-        href="https://github.com/rzeiler/esphome-display-configurator"
-        class="btn btn-primary m-2 text-white"
-        ><span class="mdi mdi-github fs-1"></span
-      ></a>
+      <a href="https://github.com/rzeiler/esphome-display-configurator" class="btn btn-primary m-2 text-white"><span
+          class="mdi mdi-github fs-1"></span></a>
     </div>
 
     <display :labels="label" :images="images"></display>
@@ -53,93 +31,54 @@
       <div class="p-4 flex-grow-1">
         <h3>Text</h3>
 
-        <b-label
-          v-for="(item, idx) in label"
-          v-model="label[idx]"
-          :fonts="fonts"
-          :key="idx"
-        ></b-label>
+
+          <TextItem v-for="(text, idx) in label" v-model="label[idx]" :fonts="fonts" :key="idx"
+            @delete="deleteText(text)" />
 
         <h3>Image</h3>
 
-        <imageItem
-          v-for="(image, idx) in images"
-          :key="idx"
-          v-model="images[idx]"
-          @delete="deleteImage(image)"
-        />
+          <ImageItem v-for="(image, idx) in images" :key="idx" v-model="images[idx]" @delete="deleteImage(image)" />
 
-        <h3>Font</h3>
+          <h3>Font</h3>
 
-        <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
-          <span class="input-group-text">{{ font.name }}</span>
-          <input
-            type="number"
-            class="form-control"
-            v-model="font.size"
-            @change="changeSize(font)"
-          />
-          <button class="btn btn-danger" style="z-index: unset" @click="removeFont(font)">
-            <span class="mdi mdi-trash-can-outline me-1"></span>Remove
+          <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
+            <span class="input-group-text">{{ font.name }}</span>
+            <input type="number" class="form-control" v-model="font.size" @change="changeSize(font)" />
+            <button class="btn btn-danger" style="z-index: unset" @click="removeFont(font)">
+              <span class="mdi mdi-trash-can-outline me-1"></span>Remove
+            </button>
+          </div>
+
+        </div>
+      </div>
+      <pre class="card p-4 bg-dark text-white m-4 shadow" v-html="code"></pre>
+      <div v-if="choosFont" @click="choosFont = false"
+        class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
+        style="--bs-bg-opacity: 0.5">
+        <div class="list-group">
+          <button type="button" v-for="font in fonts" :key="font.id" class="list-group-item list-group-item-action"
+            @click="changeFont(font)">
+            {{ font.name }} ({{ font.size }})
           </button>
         </div>
       </div>
-    </div>
-    <pre class="card p-4 bg-dark text-white m-3 shadow-sm" v-html="code"></pre>
-    <div
-      v-if="choosFont"
-      @click="choosFont = false"
-      class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
-      style="--bs-bg-opacity: 0.5"
-    >
-      <div class="list-group">
-        <button
-          type="button"
-          v-for="font in fonts"
-          :key="font.id"
-          class="list-group-item list-group-item-action"
-          @click="changeFont(font)"
-        >
-          {{ font.name }} ({{ font.size }})
-        </button>
-      </div>
-    </div>
-    <div
-      v-if="addFont"
-      class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
-      style="--bs-bg-opacity: 0.5"
-    >
-      <div class="bg-white shadow p-0 rounded">
-        <button
-          type="button"
-          class="btn-close m-1"
-          @click="addFont = false"
-          aria-label="Close"
-          style="float: right"
-        ></button>
+      <div v-if="addFont"
+        class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
+        style="--bs-bg-opacity: 0.5">
+        <div class="bg-white shadow p-0 rounded">
+          <button type="button" class="btn-close m-1" @click="addFont = false" aria-label="Close"
+            style="float: right"></button>
 
-        <div class="input-group m-4" style="width: 700px">
-          <span class="input-group-text">Google Font</span>
-          <input
-            type="text"
-            class="form-control"
-            v-model="fontData.name"
-            placeholder="Roboto, Montserrat, Raleway,Open Sans..."
-            aria-label="Text"
-            aria-describedby="Text"
-          />
-          <span class="input-group-text">Size</span>
-          <input
-            type="number"
-            class="form-control"
-            v-model="fontData.size"
-            value="10"
-            min="0"
-            max="30"
-          />
-          <button class="btn btn-danger" style="z-index: unset" @click="addNewFont">
-            <span class="mdi mdi-check me-1"></span>Add
-          </button>
+          <div class="input-group m-4" style="width: 700px">
+            <span class="input-group-text">Google Font</span>
+            <input type="text" class="form-control" v-model="fontData.name"
+              placeholder="Roboto, Montserrat, Raleway,Open Sans..." aria-label="Text" aria-describedby="Text" />
+            <span class="input-group-text">Size</span>
+            <input type="number" class="form-control" v-model="fontData.size" value="10" min="0" max="30" />
+            <button class="btn btn-danger" style="z-index: unset" @click="addNewFont">
+              <span class="mdi mdi-check me-1"></span>Add
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -147,16 +86,17 @@
 </template>
 
 <script>
-import display from "./display/";
-import bLabel from "./LabelSetting.vue";
-import imageItem from "./image/";
+import display from "./Display.vue";
+import { TextItem, NewTextItem } from "./text/";
+import { ImageItem, NewImageItem } from "./image/";
+ 
 
 export default {
   name: "UiEditor",
   components: {
     display,
-    "b-label": bLabel,
-    imageItem,
+    TextItem,
+    ImageItem,
   },
   data: function () {
     return {
@@ -189,23 +129,26 @@ export default {
       this.fontData = { name: "Dosis", size: 15 };
       this.addNewFont();
       this.addLabel();
+      this.newImage();
     }
 
     this.setTooltip();
   },
   methods: {
+    deleteText(txt) {
+      this.label = this.label.filter((obj) => {
+        return obj !== txt;
+      });
+    },
     deleteImage(img) {
       this.images = this.images.filter((obj) => {
         return obj !== img;
       });
     },
     newImage() {
-      this.images.push({
-        image: "mdi mdi-abacus",
-        top: 0,
-        left: 0,
-        id: "image" + this.images.length,
-      });
+      this.images.push(NewImageItem(this.images.length));
+    
+console.log(this.images,this.label);
 
       this.buildCode();
     },
@@ -251,7 +194,7 @@ export default {
       this.code += "\nimages:";
       this.images.forEach((i) => {
         this.code += `\n  - file: "${i.image}"`;
-        this.code += `\n    id: ${i.id}`;
+        this.code += `\n    id: image${i.id}`;
         this.code += `\n    size: 24x24`;
       });
 
@@ -264,9 +207,13 @@ export default {
       });
       this.code += `\n\n# Example configuration entry Display `;
       this.code += `\ndisplay:`;
+      this.code += `\n    rotation: 0`;
       this.code += `\n    lambda: |-`;
       this.label.forEach((i) => {
         this.code += `\n      it.printf(${i.left},${i.top}, id(${i.font.id}), TextAlign::${i.style}, "${i.text}");`;
+      });
+      this.images.forEach((i) => {
+        this.code += `\n      it.image(${i.left},${i.top}, id(image${i.id}), ImageAlign::TOP_LEFT);`;
       });
 
       localStorage.history = JSON.stringify({
@@ -301,13 +248,7 @@ export default {
       });
     },
     addLabel() {
-      this.label.push({
-        top: 0,
-        left: 0,
-        text: "Hello World",
-        id: this.label.length,
-        font: this.fonts[0],
-      });
+      this.label.push(NewTextItem(this.fonts[0], this.label.length));
       this.buildCode();
     },
   },
@@ -356,3 +297,4 @@ label {
   background-color: red;
 }
 </style>
+./text

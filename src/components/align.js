@@ -1,0 +1,22 @@
+let ListAlign = [
+    //"TOP",
+    // "CENTER_VERTICAL",
+    // "BASELINE",
+    // "BOTTOM",
+    // "LEFT",
+    // "CENTER_HORIZONTAL",
+    // "RIGHT",
+    "TOP_LEFT",
+    "TOP_CENTER",
+    "TOP_RIGHT",
+    // "CENTER_LEFT",
+    // "CENTER",
+    // "CENTER_RIGHT",
+    // "BASELINE_LEFT",
+    // "BASELINE_CENTER",
+    // "BASELINE_RIGHT",
+    // "BOTTOM_LEFT",
+    // "BOTTOM_CENTER",
+    // "BOTTOM_RIGHT",
+];
+export {ListAlign};

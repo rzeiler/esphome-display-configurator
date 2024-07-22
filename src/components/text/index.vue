@@ -3,42 +3,16 @@
 <template>
   <div class="input-group mb-3">
     <span class="input-group-text">Text</span>
-    <input
-      type="text"
-      class="form-control"
-      :value="value.text"
-      @input="update('text', $event.target.value)"
-      placeholder="Hello world"
-      aria-label="Text"
-      aria-describedby="Text"
-    />
+    <input type="text" class="form-control" :value="value.text" @input="update('text', $event.target.value)"
+      placeholder="Hello world" aria-label="Text" aria-describedby="Text" />
     <span class="input-group-text">Top</span>
-    <input
-      type="number"
-      :value="value.top"
-      class="form-control"
-      @input="update('top', $event.target.value)"
-      style="max-width: 100px"
-      min="0"
-      :max="value.maxHeight"
-    />
+    <input type="number" :value="value.top" class="form-control" @input="update('top', $event.target.value)"
+      style="max-width: 100px" min="0" :max="value.maxHeight" />
     <span class="input-group-text">Left</span>
-    <input
-      type="number"
-      :value="value.left"
-      class="form-control"
-      @input="update('left', $event.target.value)"
-      style="max-width: 100px"
-      min="0"
-      :max="value.maxWidth"
-    />
+    <input type="number" :value="value.left" class="form-control" @input="update('left', $event.target.value)"
+      style="max-width: 100px" min="0" :max="value.maxWidth" />
     <div class="dropdown" data-bs-toggle="tooltip" title="Font">
-      <button
-        data-bs-toggle="dropdown"
-        class="btn btn-light rounded-0"
-        style="z-index: unset"
-        type="button"
-      >
+      <button data-bs-toggle="dropdown" class="btn btn-light rounded-0 border" style="z-index: unset" type="button">
         {{ value.font.name }} ({{ value.font.size }})
       </button>
       <ul class="dropdown-menu">
@@ -48,59 +22,33 @@
       </ul>
     </div>
     <div class="dropdown" data-bs-toggle="tooltip" title="TextAlign">
-      <button
-        data-bs-toggle="dropdown"
-        class="btn btn-light rounded-0"
-        style="z-index: unset"
-        type="button"
-      >
+      <button data-bs-toggle="dropdown" class="btn btn-light rounded-0 border" style="z-index: unset" type="button">
         {{ defaultStyle(value.style) }}
       </button>
       <ul class="dropdown-menu">
-        <li
-          href="#"
-          v-for="(align, idx) in aligns"
-          :key="idx"
-          @click="update('style', align)"
-        >
+        <li href="#" v-for="(align, idx) in aligns" :key="idx" @click="update('style', align)">
           <a class="dropdown-item">{{ align }}</a>
         </li>
       </ul>
     </div>
 
-    <button class="btn btn-danger" style="z-index: unset" @click="remove(value.id)">
+    <button class="btn btn-danger" style="z-index: unset" @click="remove(value)">
       <span class="mdi mdi-trash-can-outline me-1"></span>Remove
     </button>
   </div>
 </template>
 
 <script>
+
+
+import { ListAlign } from "../align.js";
+
 export default {
-  name: "b-label",
+  name: "TextItem",
   props: ["value", "fonts"],
   data: function () {
     return {
-      aligns: [
-        //"TOP",
-        // "CENTER_VERTICAL",
-        // "BASELINE",
-        // "BOTTOM",
-        // "LEFT",
-        // "CENTER_HORIZONTAL",
-        // "RIGHT",
-        "TOP_LEFT",
-        "TOP_CENTER",
-        "TOP_RIGHT",
-        // "CENTER_LEFT",
-        // "CENTER",
-        // "CENTER_RIGHT",
-        // "BASELINE_LEFT",
-        // "BASELINE_CENTER",
-        // "BASELINE_RIGHT",
-        // "BOTTOM_LEFT",
-        // "BOTTOM_CENTER",
-        // "BOTTOM_RIGHT",
-      ],
+      aligns: ListAlign,
     };
   },
   mounted() {
@@ -117,8 +65,15 @@ export default {
     update(key, value) {
       this.$emit("input", { ...this.value, [key]: value });
     },
+    remove() {
+      this.$emit("delete");
+    },
   },
 };
+
+ 
+
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -130,18 +85,18 @@ export default {
   cursor: zoom-in;
 }
 
-#screen:hover > * {
+#screen:hover>* {
   opacity: 0.5;
 }
 
-#screen:hover > label:hover {
+#screen:hover>label:hover {
   opacity: 1;
   border: 1px solid #6f42c1;
   padding: 0;
   cursor: move;
 }
 
-.board > div:first-child {
+.board>div:first-child {
   position: relative;
 }
 
@@ -151,7 +106,7 @@ export default {
   border-radius: 7px;
 }
 
-.oled128x64 > div:first-child {
+.oled128x64>div:first-child {
   border: 3px solid #000000;
   background-color: #000000;
   box-shadow: 0px 0px 10px #000000;
@@ -167,7 +122,7 @@ export default {
   padding: 1px 15px 1px 15px;
 }
 
-.waveshare250x122 > div:first-child {
+.waveshare250x122>div:first-child {
   position: relative;
   border: 1px solid #eee;
   background-color: #eee;
@@ -183,7 +138,7 @@ export default {
   padding: 15px 1px 15px 1px !important;
 }
 
-.waveshare250x122.vertical > div:first-child {
+.waveshare250x122.vertical>div:first-child {
   height: 250px !important;
   width: 122px !important;
 }

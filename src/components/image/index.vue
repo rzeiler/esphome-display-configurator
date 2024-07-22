@@ -30,7 +30,26 @@
         @input="update('left', $event.target.value)"
         style="max-width: 100px"
       />
-
+      <div class="dropdown" data-bs-toggle="tooltip" title="TextAlign">
+      <button
+        data-bs-toggle="dropdown"
+        class="btn btn-light rounded-0 border"
+        style="z-index: unset"
+        type="button"
+      >
+        {{ defaultStyle(value.style) }}
+      </button>
+      <ul class="dropdown-menu">
+        <li
+          href="#"
+          v-for="(align, idx) in aligns"
+          :key="idx"
+          @click="update('style', align)"
+        >
+          <a class="dropdown-item">{{ align }}</a>
+        </li>
+      </ul>
+    </div>
       <button class="btn btn-danger" style="z-index: unset" @click="remove">
         <span class="mdi mdi-trash-can-outline me-1"></span>Remove
       </button>
@@ -40,13 +59,15 @@
 
 <script>
 import { ListIcon } from "./icon.js";
+import { ListAlign } from "../align.js";
 
 export default {
   name: "add",
   components: {},
-  props: ["value"],
+  props: ["value","index"],
   data: function () {
     return {
+      aligns: ListAlign,
       icons: [],
       icon_class: "mdi mdi-abjad-arabic",
     };
@@ -59,6 +80,13 @@ export default {
     });
   },
   methods: {
+    defaultStyle(style) {
+      if (style == undefined) {
+        style = "TOP_LEFT";
+        this.update("style", style);
+      }
+      return style;
+    },
     update(key, value) {
       console.log(key, value);
 

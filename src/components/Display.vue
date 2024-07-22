@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded d-flex flex-column mt-3 mb-3 bg-white shadow ps-3 pe-3">
+  <div class="rounded d-flex flex-column mt-3 mb-3 bg-white shadow-sm ps-3 pe-3 ">
     <div class="p-4 d-flex">
       <span class="ps-0 display-2 mb-4">Display</span>
       <span class="flex-grow-1"></span>
@@ -29,6 +29,7 @@
           </li>
         </ul>
       </div>
+      <button type="button" @click="rotate" class="btn btn-warning" >Drehen</button>
     </div>
     <div
       ref="dis"
@@ -45,21 +46,22 @@
       >
         <label
           :class="labelClass(item)"
-          v-for="item in labels"
+          v-for="(item) in labels"
           :key="item.id"
-          :data-id="item.id"
+         :id="item.id"
           :style="labelStyle(item)"
         >
-          {{ item.text }}
+          {{ item.text }} {{ item.id }}
         </label>
 
         <span
-          v-for="image in images"
+          v-for="(image) in images"
           :key="image.id"
-          :data-id="image.id"
+           
           :class="image.image"
           :style="imageStyle(image)"
-        />
+          :id="image.id"
+        >{{ image.id }}</span>
       </div>
     </div>
   </div>
@@ -68,7 +70,6 @@
 <script>
 export default {
   name: "Display",
-
   props: {
     labels: {
       type: Array,
@@ -85,6 +86,7 @@ export default {
   },
   data: function () {
     return {
+      angle: 0,
       displays: [
         {
           name: "OLED",
@@ -108,6 +110,9 @@ export default {
     this.mouseUp();
   },
   methods: {
+    rotate(){
+
+    },
     mouseMove() {
       if (window.dragEl.target != undefined) {
         const e = window.event;
@@ -116,20 +121,14 @@ export default {
         var x = e.clientX - el.clientX + el.left;
         var y = e.clientY - el.clientY + el.top;
         const id = el.id;
-        console.log(id);
+     
         if (el.target.nodeName == "SPAN") {
           let local_images = [...this.images];
-
-          console.log(el, local_images, id);
-
           local_images[id].left = x;
           local_images[id].top = y;
         }
         if (el.target.nodeName == "LABEL") {
           let local_labels = [...this.labels];
-
-          console.log(el, local_labels);
-
           local_labels[id].left = x;
           local_labels[id].top = y;
         }
@@ -148,12 +147,6 @@ export default {
     mouseDown() {
       const e = window.event;
       const id = parseInt(e.target.getAttribute("data-id"));
-
-      // offsetHeight
-      // offsetLeft
-      // offsetParent
-      // offsetTop
-      // offsetWidth
 
       window.dragEl = {
         target: e.target,
@@ -205,7 +198,7 @@ export default {
     },
     "display.scale"() {
       localStorage.display = JSON.stringify(this.display);
-    },
+    }
   },
 };
 </script>
@@ -231,7 +224,7 @@ label.top_right {
 }
 
 #screen:hover > label:hover,
-#screen:hover > span.md:hover {
+#screen:hover > span.mdi:hover {
   opacity: 1;
   border: 1px solid #6f42c1;
   padding: 0;
