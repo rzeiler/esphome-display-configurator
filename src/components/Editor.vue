@@ -49,107 +49,97 @@
     </div>
 
     <display :labels="label" :images="images"></display>
+    <div class="flex-grow-1 d-flex flex-column overflow-auto">
+      <div class="p-4 flex-grow-1">
+        <h3>Text</h3>
 
-    <div class="d-flex flex-column flex-grow-1">
-      <div class="flex-grow-1 d-flex flex-column overflow-auto">
-        <div class="p-4 flex-grow-1">
-          <h3>Text</h3>
+        <b-label
+          v-for="(item, idx) in label"
+          v-model="label[idx]"
+          :fonts="fonts"
+          :key="idx"
+        ></b-label>
 
-          <div class="card mb-2 p-2 shadow-sm">
-            <b-label
-              v-for="(item, idx) in label"
-              v-model="label[idx]"
-              :fonts="fonts"
-              :key="idx"
-            ></b-label>
-          </div>
+        <h3>Image</h3>
 
-          <h3>Image</h3>
+        <imageItem
+          v-for="(image, idx) in images"
+          :key="idx"
+          v-model="images[idx]"
+          @delete="deleteImage(image)"
+        />
 
-          <imageItem
-            v-for="(image, idx) in images"
-            :key="idx"
-            v-model="images[idx]"
-            @delete="deleteImage(image)"
+        <h3>Font</h3>
+
+        <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
+          <span class="input-group-text">{{ font.name }}</span>
+          <input
+            type="number"
+            class="form-control"
+            v-model="font.size"
+            @change="changeSize(font)"
           />
-
-          <h3>Font</h3>
-          <div class="card mb-2 p-2 shadow-sm">
-            <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
-              <span class="input-group-text">{{ font.name }}</span>
-              <input
-                type="number"
-                class="form-control"
-                v-model="font.size"
-                @change="changeSize(font)"
-              />
-              <button
-                class="btn btn-danger"
-                style="z-index: unset"
-                @click="removeFont(font)"
-              >
-                <span class="mdi mdi-trash-can-outline me-1"></span>Remove
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <pre class="card p-4 bg-dark text-white m-4 shadow" v-html="code"></pre>
-      <div
-        v-if="choosFont"
-        @click="choosFont = false"
-        class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
-        style="--bs-bg-opacity: 0.5"
-      >
-        <div class="list-group">
-          <button
-            type="button"
-            v-for="font in fonts"
-            :key="font.id"
-            class="list-group-item list-group-item-action"
-            @click="changeFont(font)"
-          >
-            {{ font.name }} ({{ font.size }})
+          <button class="btn btn-danger" style="z-index: unset" @click="removeFont(font)">
+            <span class="mdi mdi-trash-can-outline me-1"></span>Remove
           </button>
         </div>
       </div>
-      <div
-        v-if="addFont"
-        class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
-        style="--bs-bg-opacity: 0.5"
-      >
-        <div class="bg-white shadow p-0 rounded">
-          <button
-            type="button"
-            class="btn-close m-1"
-            @click="addFont = false"
-            aria-label="Close"
-            style="float: right"
-          ></button>
+    </div>
+    <pre class="card p-4 bg-dark text-white m-3 shadow-sm" v-html="code"></pre>
+    <div
+      v-if="choosFont"
+      @click="choosFont = false"
+      class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
+      style="--bs-bg-opacity: 0.5"
+    >
+      <div class="list-group">
+        <button
+          type="button"
+          v-for="font in fonts"
+          :key="font.id"
+          class="list-group-item list-group-item-action"
+          @click="changeFont(font)"
+        >
+          {{ font.name }} ({{ font.size }})
+        </button>
+      </div>
+    </div>
+    <div
+      v-if="addFont"
+      class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
+      style="--bs-bg-opacity: 0.5"
+    >
+      <div class="bg-white shadow p-0 rounded">
+        <button
+          type="button"
+          class="btn-close m-1"
+          @click="addFont = false"
+          aria-label="Close"
+          style="float: right"
+        ></button>
 
-          <div class="input-group m-4" style="width: 700px">
-            <span class="input-group-text">Google Font</span>
-            <input
-              type="text"
-              class="form-control"
-              v-model="fontData.name"
-              placeholder="Roboto, Montserrat, Raleway,Open Sans..."
-              aria-label="Text"
-              aria-describedby="Text"
-            />
-            <span class="input-group-text">Size</span>
-            <input
-              type="number"
-              class="form-control"
-              v-model="fontData.size"
-              value="10"
-              min="0"
-              max="30"
-            />
-            <button class="btn btn-danger" style="z-index: unset" @click="addNewFont">
-              <span class="mdi mdi-check me-1"></span>Add
-            </button>
-          </div>
+        <div class="input-group m-4" style="width: 700px">
+          <span class="input-group-text">Google Font</span>
+          <input
+            type="text"
+            class="form-control"
+            v-model="fontData.name"
+            placeholder="Roboto, Montserrat, Raleway,Open Sans..."
+            aria-label="Text"
+            aria-describedby="Text"
+          />
+          <span class="input-group-text">Size</span>
+          <input
+            type="number"
+            class="form-control"
+            v-model="fontData.size"
+            value="10"
+            min="0"
+            max="30"
+          />
+          <button class="btn btn-danger" style="z-index: unset" @click="addNewFont">
+            <span class="mdi mdi-check me-1"></span>Add
+          </button>
         </div>
       </div>
     </div>
@@ -157,7 +147,7 @@
 </template>
 
 <script>
-import display from "./Display.vue";
+import display from "./display/";
 import bLabel from "./LabelSetting.vue";
 import imageItem from "./image/";
 
@@ -216,6 +206,7 @@ export default {
         left: 0,
         id: "image" + this.images.length,
       });
+
       this.buildCode();
     },
     onChange(e) {

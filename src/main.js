@@ -7,7 +7,7 @@ import "./scss/app.scss"
 
 import "../node_modules/@mdi/font/css/materialdesignicons.css"
 import './registerServiceWorker'
-
+ 
  
  
 
@@ -17,8 +17,8 @@ Vue.mixin({
   methods: {
     setTooltip() {
       const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-      console.log(tooltipList);
+      /* eslint-disable */
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl)) 
     },
   }
 })

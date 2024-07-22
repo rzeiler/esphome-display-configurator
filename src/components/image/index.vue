@@ -57,8 +57,6 @@ export default {
         value: i,
       });
     });
-
-    this.setTooltip();
   },
   methods: {
     update(key, value) {
