@@ -1,63 +1,37 @@
 <template>
-  <div class="rounded d-flex flex-column mt-3 mb-3 bg-white shadow ps-3 pe-3">
-    <div class="p-4 d-flex">
+  <div
+    class="rounded bg-white shadow p-3 mt-3 d-flex justify-content-center align-items-center"
+  >
+    <div ref="dis" class="shadow" @mousewheel="handleScroll">
       <div
-        class="dropdown d-flex align-items-center"
-        data-bs-toggle="tooltip"
-        title="Choose Display"
-      >
-        <button
-          class="btn active rounded-circle"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          <span class="mdi mdi-dots-vertical"></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li>
-            <a
-              @click="display = item"
-              v-for="item in displays"
-              :key="item.name"
-              class="dropdown-item"
-              href="#"
-              >{{ item.name }} ({{ item.details }})</a
-            >
-          </li>
-        </ul>
-      </div>
-    </div>
-    <h1>{{ display.background }}</h1>
-    <div ref="dis" class="board shadow align-self-center" @mousewheel="handleScroll">
-      <div
+        v-if="settings"
         id="screen"
         class="shadow position-relative overflow-hidden"
         @mousedown="mouseDown"
         @mousemove="mouseMove"
         @mouseup="mouseUp"
         :style="{
-          scale: display.scale,
-          height: display.height + 'px',
-          width: display.width + 'px',
-          backgroundColor: display.background,
-          color: display.text,
+          scale: settings.scale,
+          height: settings.height + 'px',
+          width: settings.width + 'px',
+          backgroundColor: `${settings.background}`,
+          color: `${settings.text}`,
         }"
       >
         <label
           :class="labelClass(item)"
-          v-for="item in labels"
+          v-for="(item, idx) in labels"
           :key="item.id"
-          :data-id="item.id"
+          :id="idx"
           :style="labelStyle(item)"
         >
           {{ item.text }}
         </label>
 
         <span
-          v-for="image in images"
+          v-for="(image, idx) in images"
           :key="image.id"
-          :data-id="image.id"
+          :id="idx"
           :class="image.image"
           :style="imageStyle(image)"
         />
@@ -83,35 +57,20 @@ export default {
         return [];
       },
     },
-  },
-  data: function () {
-    return {
-      displays: [
-        {
-          name: "OLED",
-          class: "oled128x64",
-          details: "128x64",
-          scale: 1,
-        },
-        {
-          name: "waveshare",
-          class: "waveshare250x122 vertical",
-          details: "250x122",
-          scale: 1,
-        },
-      ],
-
-      display: {
-        height: 122,
-        width: 255,
-        background: "#17599b",
-        text: "#333333",
-        rotation: 0,
+    settings: {
+      type: Object,
+      default() {
+        return {
+          height: 122,
+          width: 255,
+          background: "#eeeeee",
+          text: "#333333",
+          rotation: 0,
+        };
       },
-    };
+    },
   },
   mounted() {
-    this.display = this.displays[1];
     this.mouseUp();
   },
   methods: {
@@ -123,26 +82,25 @@ export default {
         var x = e.clientX - el.clientX + el.left;
         var y = e.clientY - el.clientY + el.top;
         const id = el.id;
-        console.log(id);
+
         if (el.target.nodeName == "SPAN") {
           let local_images = [...this.images];
-
-          console.log(el, local_images, id);
-
           local_images[id].left = x;
           local_images[id].top = y;
         }
+
         if (el.target.nodeName == "LABEL") {
           let local_labels = [...this.labels];
-
-          console.log(el, local_labels);
-
           local_labels[id].left = x;
           local_labels[id].top = y;
         }
       }
     },
     mouseUp() {
+      
+      if (window.dragEl != undefined) {
+        this.$emit("changed");
+      }
       window.dragEl = {
         target: undefined,
         clientX: 0,
@@ -154,13 +112,7 @@ export default {
     },
     mouseDown() {
       const e = window.event;
-      const id = parseInt(e.target.getAttribute("data-id"));
-
-      // offsetHeight
-      // offsetLeft
-      // offsetParent
-      // offsetTop
-      // offsetWidth
+      const id = parseInt(e.target.getAttribute("id"));
 
       window.dragEl = {
         target: e.target,
@@ -171,17 +123,15 @@ export default {
         id: id,
       };
     },
-    onChange(item) {
-      this.display = item;
-      localStorage.display = JSON.stringify(item);
-    },
     handleScroll(event) {
+      /*
       if (event.deltaY === 120) {
         this.display.scale += 0.1;
       }
       if (event.deltaY === -120) {
         this.display.scale -= 0.1;
       }
+        */
     },
     labelStyle(item) {
       return {
@@ -203,18 +153,10 @@ export default {
   },
   computed: {
     cssClass() {
-      return `${this.display.class} board shadow align-self-center`; // {display.oled128x64, true: 'board shadow align-self-center'};
+      return `${this.settings.class} board shadow align-self-center`; // {display.oled128x64, true: 'board shadow align-self-center'};
     },
     cssStyle() {
       return "";
-    },
-  },
-  watch: {
-    display() {
-      localStorage.display = JSON.stringify(this.display);
-    },
-    "display.scale"() {
-      localStorage.display = JSON.stringify(this.display);
     },
   },
 };
@@ -228,71 +170,17 @@ label.top_center {
 label.top_right {
   transform: translateX(-100%);
 }
-/*
-.board {
-  display: inline-block;
-  padding: 20px 10px 30px 10px;
-  margin: 100px;
-  cursor: zoom-in;
-}
-*/
+
 #screen:hover > * {
   opacity: 0.5;
 }
 
 #screen:hover > label:hover,
-#screen:hover > span.md:hover {
+#screen:hover > span.mdi:hover {
   opacity: 1;
   border: 1px solid #6f42c1;
   padding: 0;
   cursor: move;
-}
-
-.board > div:first-child {
-  position: relative;
-}
-
-.oled128x64 {
-  border: 5px solid #1b497e;
-  background-color: #17599b;
-  border-radius: 7px;
-}
-
-.oled128x64 > div:first-child {
-  border: 3px solid #000000;
-  background-color: #000000;
-  box-shadow: 0px 0px 10px #000000;
-  color: #fff;
-  width: 128px;
-  height: 64px;
-}
-
-.waveshare250x122 {
-  border: 2px solid #1b497e;
-  background-color: #17599b;
-  border-radius: 7px;
-  padding: 1px 15px 1px 15px;
-}
-
-.waveshare250x122 > div:first-child {
-  position: relative;
-  border: 1px solid #eee;
-  background-color: #eee;
-  box-shadow: 0px 0px 10px #000000;
-  margin: -1px 0;
-  color: #333333;
-  width: 250px;
-  height: 122px;
-  overflow: hidden;
-}
-
-.waveshare250x122.vertical {
-  padding: 15px 1px 15px 1px !important;
-}
-
-.waveshare250x122.vertical > div:first-child {
-  height: 250px !important;
-  width: 122px !important;
 }
 
 label {
@@ -307,12 +195,5 @@ span.mdi {
   position: absolute;
   border: 1px solid transparent;
   line-height: 0.8;
-}
-
-.hole {
-  border: 2px solid #aaa;
-  height: 12px;
-  width: 12px;
-  background-color: rgba(var(--bs-tertiary-bg-rgb), var(--bs-bg-opacity)) !important;
 }
 </style>

@@ -1,84 +1,204 @@
 <template>
-  <div id="uieditor" @click="buildCode" class="d-flex align-items-stretch overflow-hidden position-relative vh-100 vw-100 ">
-    <div class="bg-primary-subtle d-flex flex-column m-3 rounded p-2 shadow-sm">
-      <button class="btn btn-primary m-2 text-white" @click="addLabel" data-bs-toggle="tooltip" title="Add new Text">
-        <span class="mdi mdi-format-text fs-5"></span>
+  <!--   @click="buildCode"-->
+  <div
+    id="uieditor"
+    class="d-flex align-items-stretch overflow-hidden position-relative vh-100 vw-100"
+  >
+    <div class="bg-primary-subtle d-flex flex-column m-3 rounded p-2 shadow-sm text">
+      <button
+        class="btn btn-primary m-2 text-white"
+        @click="addLabel"
+        data-bs-toggle="tooltip"
+        title="Add new Text"
+      >
+        <span class="mdi mdi-format-text fs-4"></span>
       </button>
-      <button class="btn btn-primary m-2 text-white" @click="addFont = true" data-bs-toggle="tooltip"
-        title="Add new Font from Google Fonts">
-        <span class="mdi mdi-format-font fs-5"></span>
+      <button
+        class="btn btn-primary m-2 text-white"
+        @click="addFont = true"
+        data-bs-toggle="tooltip"
+        title="Add new Font from Google Fonts"
+      >
+        <span class="mdi mdi-format-font fs-4"></span>
       </button>
 
-      <button class="btn btn-primary m-2 text-white" @click="newImage" data-bs-toggle="tooltip"
-        title="Add new Image from pictogrammers">
-        <span class="mdi mdi-image"></span>
+      <button
+        class="btn btn-primary m-2 text-white"
+        @click="newImage"
+        data-bs-toggle="tooltip"
+        title="Add new Image from pictogrammers"
+      >
+        <span class="mdi mdi-image fs-4"></span>
+      </button>
+
+      <button
+        class="btn btn-primary m-2 text-white "
+        @click="openFile"
+        data-bs-toggle="tooltip"
+        title="Datei öffnen"
+      >
+        
+      <span class="mdi mdi-folder-open-outline fs-4"></span>
+      </button>
+
+      <button
+        class="btn btn-primary m-2 text-white"
+        @click="saveFile"
+        data-bs-toggle="tooltip"
+        title="Datei Speichern"
+      >
+      <span class="mdi mdi-content-save-outline fs-4"></span>
       </button>
 
       <span class="flex-grow-1"> </span>
 
-      <button class="d-none btn btn-primary m-2 text-white position-relative">
-        <span class="mdi mdi-refresh fs-5"></span>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1">{{ history
-          }}<span class="visually-hidden">history</span></span>
-      </button>
-
-      <a href="https://github.com/rzeiler/esphome-display-configurator" class="btn btn-primary m-2 text-white"><span
-          class="mdi mdi-github fs-1"></span></a>
+      <a
+        href="https://github.com/rzeiler/esphome-display-configurator"
+        class="btn btn-primary m-2 text-white"
+        ><span class="mdi mdi-github fs-1"></span
+      ></a>
     </div>
+    <div class="d-flex flex-column mt-3 mb-3" style="min-width:300px">
+      <div class="btn-group" role="group" aria-label="Basic example">
+        <button
+          type="button"
+          class="btn btn-primary text-white mdi mdi-screen-rotation"
+          data-bs-toggle="tooltip"
+          title="Rotate Display"
+          data-bs-placement="bottom"
+          @click="rotate(settings.rotation)"
+        />
+        <input
+          type="number"
+          style="max-width: 100px"
+          class="form-control rounded-0"
+          data-bs-toggle="tooltip"
+          title="Display Width"
+          data-bs-placement="bottom"
+          v-model="settings.width"
+        />
+        <input
+          type="number"
+          style="max-width: 100px"
+          data-bs-toggle="tooltip"
+          title="Display Height"
+          data-bs-placement="bottom"
+          class="form-control rounded-0 rounded-end"
+          v-model="settings.height"
+        />
+      </div>
 
-    <display :labels="label" :images="images"></display>
+      <display :labels="label"  :images="images" :settings="settings" @changed="someChanges" class="flex-fill" />
+    </div>
     <div class="flex-grow-1 d-flex flex-column overflow-auto">
       <div class="p-4 flex-grow-1">
         <h3>Text</h3>
 
-
-          <TextItem v-for="(text, idx) in label" v-model="label[idx]" :fonts="fonts" :key="idx"
-            @delete="deleteText(text)" />
+        <TextItem
+          v-for="(text, idx) in label"
+          v-model="label[idx]"
+          :fonts="fonts"
+          :key="text.id"
+          @delete="deleteText(text)"
+        />
 
         <h3>Image</h3>
 
-          <ImageItem v-for="(image, idx) in images" :key="idx" v-model="images[idx]" @delete="deleteImage(image)" />
+        <ImageItem
+          v-for="(image, idx) in images"
+          :key="image.id"
+          v-model="images[idx]"
+          @delete="deleteImage(image)"
+        />
 
-          <h3>Font</h3>
+        <h3>Font</h3>
 
-          <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
-            <span class="input-group-text">{{ font.name }}</span>
-            <input type="number" class="form-control" v-model="font.size" @change="changeSize(font)" />
-            <button class="btn btn-danger" style="z-index: unset" @click="removeFont(font)">
-              <span class="mdi mdi-trash-can-outline me-1"></span>Remove
-            </button>
-          </div>
-
-        </div>
-      </div>
-      <pre class="card p-4 bg-dark text-white m-4 shadow" v-html="code"></pre>
-      <div v-if="choosFont" @click="choosFont = false"
-        class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
-        style="--bs-bg-opacity: 0.5">
-        <div class="list-group">
-          <button type="button" v-for="font in fonts" :key="font.id" class="list-group-item list-group-item-action"
-            @click="changeFont(font)">
-            {{ font.name }} ({{ font.size }})
+        <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
+          <span class="input-group-text">{{ font.name }}</span>
+          <input
+            type="number"
+            class="form-control"
+            v-model="font.size"
+            @change="changeSize(font)"
+          />
+          <button
+            class="btn btn-danger"
+            style="z-index: unset"
+            @click="removeFont(font)"
+          >
+            <span class="mdi mdi-trash-can-outline me-1"></span>Remove
           </button>
         </div>
       </div>
-      <div v-if="addFont"
-        class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
-        style="--bs-bg-opacity: 0.5">
-        <div class="bg-white shadow p-0 rounded">
-          <button type="button" class="btn-close m-1" @click="addFont = false" aria-label="Close"
-            style="float: right"></button>
+    </div>
 
-          <div class="input-group m-4" style="width: 700px">
-            <span class="input-group-text">Google Font</span>
-            <input type="text" class="form-control" v-model="fontData.name"
-              placeholder="Roboto, Montserrat, Raleway,Open Sans..." aria-label="Text" aria-describedby="Text" />
-            <span class="input-group-text">Size</span>
-            <input type="number" class="form-control" v-model="fontData.size" value="10" min="0" max="30" />
-            <button class="btn btn-danger" style="z-index: unset" @click="addNewFont">
-              <span class="mdi mdi-check me-1"></span>Add
-            </button>
-          </div>
+<div class="card p-1 m-4 bg-dark text-white  shadow ">
+  <scrollbar class="h-100 w-100 p-2"  :settings="scrollbar_settings">
+    <pre class="overflow-visible" v-html="code"></pre>
+    </scrollbar>
+
+</div>
+
+  
+    <div
+      v-if="choosFont"
+      @click="choosFont = false"
+      class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
+      style="--bs-bg-opacity: 0.5"
+    >
+      <div class="list-group">
+        <button
+          type="button"
+          v-for="font in fonts"
+          :key="font.id"
+          class="list-group-item list-group-item-action"
+          @click="changeFont(font)"
+        >
+          {{ font.name }} ({{ font.size }})
+        </button>
+      </div>
+    </div>
+
+    <div
+      v-if="addFont"
+      class="position-absolute d-flex justify-content-center align-items-center top-0 start-0 vh-100 vw-100 bg-body-secondary"
+      style="--bs-bg-opacity: 0.5"
+    >
+      <div class="bg-white shadow p-0 rounded">
+        <button
+          type="button"
+          class="btn-close m-1"
+          @click="addFont = false"
+          aria-label="Close"
+          style="float: right"
+        ></button>
+
+        <div class="input-group m-4" style="width: 700px">
+          <span class="input-group-text">Google Font</span>
+          <input
+            type="text"
+            class="form-control"
+            v-model="fontData.name"
+            placeholder="Roboto, Montserrat, Raleway,Open Sans..."
+            aria-label="Text"
+            aria-describedby="Text"
+          />
+          <span class="input-group-text">Size</span>
+          <input
+            type="number"
+            class="form-control"
+            v-model="fontData.size"
+            value="10"
+            min="0"
+            max="30"
+          />
+          <button
+            class="btn btn-danger"
+            style="z-index: unset"
+            @click="addNewFont"
+          >
+            <span class="mdi mdi-check me-1"></span>Add
+          </button>
         </div>
       </div>
     </div>
@@ -86,10 +206,11 @@
 </template>
 
 <script>
-import display from "./Display.vue";
+import display from "./display/";
 import { TextItem, NewTextItem } from "./text/";
 import { ImageItem, NewImageItem } from "./image/";
- 
+import { OpenFile, SaveFile } from "./file/";
+import scrollbar from "./Scrollbar";
 
 export default {
   name: "UiEditor",
@@ -97,6 +218,7 @@ export default {
     display,
     TextItem,
     ImageItem,
+    scrollbar
   },
   data: function () {
     return {
@@ -106,15 +228,51 @@ export default {
       addFont: false,
       fontData: { name: "", size: 10 },
       code: "",
-      history: 0,
       images: [],
+      settings: {
+        height: 122,
+        width: 255,
+        background: "#eeeeee",
+        text: "#333333",
+        rotation: 0,
+      },
+      allowSave: false,
+      his:[],
+      scrollbar_settings: {
+        suppressScrollY: false,
+        suppressScrollX: false,
+        wheelSpeed: 1,
+        wheelPropagation: true,
+        minScrollbarLength: 50,
+      },
     };
   },
   mounted() {
-    if (localStorage.history != undefined) {
-      let lastsettings = JSON.parse(localStorage.history);
+    this.allowSave = false;
+    if (
+      localStorage.history != undefined &&
+      localStorage.history != "undefined"
+    ) {
+      this.his = JSON.parse(localStorage.history);
+      this.reset();
+    } else {
+      this.fontData = { name: "Dosis", size: 15 };
+      this.addNewFont();
+      this.addLabel();
+      this.newImage();
+    }
+  },
+  updated: function () {
+    this.allowSave = true;
+  },
+
+  methods: {
+    reset() {
+      let lastsettings = this.his[this.his.length - 1];
       this.label = lastsettings.label;
       this.fonts = lastsettings.fonts;
+      this.images = lastsettings.images;
+      this.settings = lastsettings.settings;
 
       this.fonts.forEach((font) => {
         let file = document.createElement("link");
@@ -123,18 +281,10 @@ export default {
         file.href = `https://fonts.googleapis.com/css2?family=${font.name}`;
         document.head.appendChild(file);
       });
-
+    },
+    someChanges(a){
       this.buildCode();
-    } else {
-      this.fontData = { name: "Dosis", size: 15 };
-      this.addNewFont();
-      this.addLabel();
-      this.newImage();
-    }
-
-    this.setTooltip();
-  },
-  methods: {
+    },
     deleteText(txt) {
       this.label = this.label.filter((obj) => {
         return obj !== txt;
@@ -147,33 +297,48 @@ export default {
     },
     newImage() {
       this.images.push(NewImageItem(this.images.length));
-    
-console.log(this.images,this.label);
+    },
+    openFile() {
+      OpenFile().then(
+        (data) => {
+          const history = JSON.parse(data);
 
-      this.buildCode();
+          this.his.push(history);
+
+          this.reset();
+
+          this.buildCode();
+        },
+        (stop) => console.log(stop)
+      );
     },
-    onChange(e) {
-      console.log(e);
+    saveFile() {
+      const content = JSON.stringify(this.his[this.his.length - 1]);
+      SaveFile(content).then(
+        (ok) => console.log(ok),
+        (stop) => console.log(stop)
+      );
     },
-    textAlign(item) {
-      console.log(item);
+    rotate(rotation) {
+      rotation += 90;
+      if (rotation > 270) {
+        rotation = 0;
+      }
+      var h = this.settings.height;
+      var w = this.settings.width;
+      this.settings.height = w;
+      this.settings.width = h;
+      this.settings.rotation = rotation;
     },
+
     changeSize(item) {
       this.label.forEach((obj) => {
-        console.log(obj.font.id, item.id);
         if (obj.font.id == item.id) {
           obj.font.size = item.size;
         }
       });
     },
-    setDisplay(d) {
-      this.display = d;
-      console.log("change display", d);
-    },
-    setHistory(n) {
-      alert("set hist");
-      console.log(n);
-    },
+
     changeFont(font) {
       this.choosFont.font = font;
       this.choosFont = null;
@@ -207,23 +372,29 @@ console.log(this.images,this.label);
       });
       this.code += `\n\n# Example configuration entry Display `;
       this.code += `\ndisplay:`;
-      this.code += `\n    rotation: 0`;
+      this.code += `\n    rotation: ${this.settings.rotation}`;
       this.code += `\n    lambda: |-`;
       this.label.forEach((i) => {
-        this.code += `\n      it.printf(${i.left},${i.top}, id(${i.font.id}), TextAlign::${i.style}, "${i.text}");`;
+        this.code += `\n      it.printf(${i.left},${i.top}, id(${i.font.id}), TextAlign::${i.style}, "%s", "${i.text}");`;
       });
       this.images.forEach((i) => {
         this.code += `\n      it.image(${i.left},${i.top}, id(image${i.id}), ImageAlign::TOP_LEFT);`;
       });
 
-      localStorage.history = JSON.stringify({
-        title: "",
-        text: "",
-        time: `${day}.${month} / ${hours}:${minutes}.`,
-        label: this.label,
-        fonts: this.fonts,
-        images: this.images,
-      });
+      if (this.allowSave) {
+        console.log("allowSave write");
+
+        const newSettings = {
+          time: `${day}.${month} / ${hours}:${minutes}.`,
+          label: this.label,
+          fonts: this.fonts,
+          images: this.images,
+          settings: this.settings,
+        };
+
+        this.his.push(newSettings);
+        localStorage.history = JSON.stringify(this.his);
+      }
     },
     addNewFont() {
       this.fonts.push({
@@ -238,10 +409,7 @@ console.log(this.images,this.label);
       file.rel = "stylesheet";
       file.href = `https://fonts.googleapis.com/css2?family=${font.name}`;
       document.head.appendChild(file);
-
-      this.buildCode();
     },
-
     remove(index) {
       this.label = this.label.filter((obj) => {
         return obj.id !== index;
@@ -249,6 +417,22 @@ console.log(this.images,this.label);
     },
     addLabel() {
       this.label.push(NewTextItem(this.fonts[0], this.label.length));
+    },
+  },
+  watch: {
+    "settings.rotation"(newVal, oldVal) {
+      this.buildCode();
+    },
+    "settings.width"(newVal, oldVal) {
+      this.buildCode();
+    },
+    "settings.height"(newVal, oldVal) {
+      this.buildCode();
+    },
+    label(newVal, oldVal) {
+      this.buildCode();
+    },
+    images(newVal, oldVal) {
       this.buildCode();
     },
   },
@@ -290,11 +474,13 @@ label {
   border: 2px solid #aaa;
   height: 12px;
   width: 12px;
-  background-color: rgba(var(--bs-tertiary-bg-rgb), var(--bs-bg-opacity)) !important;
+  background-color: rgba(
+    var(--bs-tertiary-bg-rgb),
+    var(--bs-bg-opacity)
+  ) !important;
 }
 
 .line {
   background-color: red;
 }
 </style>
-./text

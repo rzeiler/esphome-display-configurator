@@ -52,7 +52,7 @@ export default {
     };
   },
   mounted() {
-    this.setTooltip();
+ 
   },
   methods: {
     defaultStyle(style) {
@@ -68,6 +68,7 @@ export default {
     remove() {
       this.$emit("delete");
     },
+     
   },
 };
 

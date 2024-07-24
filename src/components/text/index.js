@@ -6,7 +6,6 @@ const NewTextItem = (font, id) => {
         top: 0,
         left: 0,
         text: "Hello World",
-        //id: id,
         font: font,
         style: ListAlign[0],
         id: `txt${id}`

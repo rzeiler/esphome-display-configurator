@@ -7,7 +7,6 @@ const NewImageItem = (id) => {
         top: 0,
         left: 0,
         style: ListAlign[0],
-        //id: id,
         id: `img${id}`
     }
 };

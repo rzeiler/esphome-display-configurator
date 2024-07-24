@@ -8,6 +8,7 @@ import "./scss/app.scss"
 import "../node_modules/@mdi/font/css/materialdesignicons.css"
 import './registerServiceWorker'
  
+
  
  
 
@@ -19,10 +20,13 @@ Vue.mixin({
       const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
       /* eslint-disable */
       const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl)) 
-    },
+    }
   }
 })
 
+var hasFSAccess =  'chooseFileSystemEntries' in window || 'showOpenFilePicker' in window;
+
+ 
  
 new Vue({
   render: h => h(App)

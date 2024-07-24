@@ -3,7 +3,10 @@
     <UiEditor />
     <div class="p-4">
       display configuration UI by rzeiler &#x40; 2024 |
-      <a href="https://esphome.io/components/display/" title="Display Component">
+      <a
+        href="https://esphome.io/components/display/"
+        title="Display Component"
+      >
         esphome
       </a>
 
@@ -20,7 +23,8 @@ export default {
   components: {
     UiEditor,
   },
+  mounted() {
+    this.setTooltip();
+  },
 };
 </script>
-
-<style></style>
