@@ -4,7 +4,7 @@
     id="uieditor"
     class="d-flex align-items-stretch overflow-hidden position-relative vh-100 vw-100"
   >
-    <div class="bg-primary-subtle d-flex flex-column m-3 rounded p-2 shadow-sm text">
+    <div class="bg-primary-subtle d-flex flex-column m-3 rounded p-2 shadow">
       <button
         class="btn btn-primary m-2 text-white"
         @click="addLabel"
@@ -51,23 +51,21 @@
 
       <span class="flex-grow-1"> </span>
 
-      <div
-        class="btn-group position-relative his"
-        data-bs-toggle="tooltip"
-        title="history"
-        role="group"
-      >
+      <div class="btn-group position-relative his" role="group">
         <button
+          :disabled="!his.enable.back"
           type="button"
-          class="btn btn-primary text-white mdi mdi-arrow-u-left-top"
+          class="btn btn-primary text-white mdi mdi-arrow-u-left-top rounded-start"
           data-bs-toggle="tooltip"
           title="back"
           data-bs-placement="bottom"
           @click="stepback()"
         />
+
         <button
+          :disabled="!his.enable.forward"
           type="button"
-          class="btn btn-primary text-white mdi mdi-arrow-u-right-top"
+          class="text-white mdi mdi-arrow-u-right-top btn btn-primary rounded-end"
           data-bs-toggle="tooltip"
           title="forward"
           data-bs-placement="bottom"
@@ -86,7 +84,7 @@
       ></a>
     </div>
     <div class="d-flex flex-column mt-3 mb-3" style="min-width: 300px">
-      <div class="btn-group" role="group">
+      <div class="btn-group shadow" role="group">
         <button
           type="button"
           class="btn btn-primary text-white mdi mdi-screen-rotation"
@@ -123,7 +121,7 @@
         class="flex-fill"
       />
 
-      <div class="btn-group mt-3" role="group">
+      <div class="btn-group border mt-3 shadow" role="group">
         <button
           type="button"
           class="btn btn-light"
@@ -188,7 +186,8 @@
         <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
           <span class="input-group-text">{{ font.name }}</span>
           <div class="border">
-            <span class="border border-0 rounded-0 position-absolute fs-7 overlay"
+            <span
+              class="border border-0 rounded-0 position-absolute fs-7 overlay"
               >Size</span
             >
             <input
@@ -198,7 +197,11 @@
               @change="changeSize(font)"
             />
           </div>
-          <button class="btn btn-danger" style="z-index: unset" @click="removeFont(font)">
+          <button
+            class="btn btn-danger"
+            style="z-index: unset"
+            @click="removeFont(font)"
+          >
             <span class="mdi mdi-trash-can-outline me-1"></span>Remove
           </button>
         </div>
@@ -263,7 +266,11 @@
             min="0"
             max="30"
           />
-          <button class="btn btn-danger" style="z-index: unset" @click="addNewFont">
+          <button
+            class="btn btn-danger"
+            style="z-index: unset"
+            @click="addNewFont"
+          >
             <span class="mdi mdi-check me-1"></span>Add
           </button>
         </div>
@@ -315,12 +322,19 @@ export default {
         data: [],
         step: 1,
         max: 1,
+        enable: {
+          forward: false,
+          back: false,
+        },
       },
     };
   },
   mounted() {
     this.allowSave = false;
-    if (localStorage.history != undefined && localStorage.history != "undefined") {
+    if (
+      localStorage.history != undefined &&
+      localStorage.history != "undefined"
+    ) {
       this.his.data = JSON.parse(localStorage.history);
 
       this.reset();
@@ -332,27 +346,28 @@ export default {
     }
   },
   updated: function () {
+    console.log("updated call");
     this.allowSave = true;
   },
 
   methods: {
     stepforward() {
+      this.allowSave = false;
       this.his.step++;
       this.reset();
     },
     stepback() {
+      this.allowSave = false;
       this.his.step--;
       this.reset();
     },
     display_preset(data) {
-      // width, height, background, text
       this.settings.width = data.width;
       this.settings.height = data.height;
       this.settings.background = data.background;
       this.settings.text = data.text;
     },
     reset() {
-      //let lastsettings = this.his.data[this.his.data.length - 1];
       let lastsettings = this.his.data[this.his.step - 1];
       this.label = lastsettings.label;
       this.fonts = lastsettings.fonts;
@@ -381,6 +396,7 @@ export default {
       });
     },
     newImage() {
+      this.allowSave = true;
       this.images.push(NewImageItem(this.images.length));
     },
     openFile() {
@@ -467,15 +483,20 @@ export default {
       });
 
       if (this.allowSave) {
-        console.log("allowSave write");
+        var appendAllow = this.his.step == this.his.data.length;
+        console.log("allowSave write", appendAllow,this.his.step , this.his.data.length);
 
         const newSettings = {
           time: `${day}.${month} / ${hours}:${minutes}.`,
-          label: this.label,
-          fonts: this.fonts,
-          images: this.images,
-          settings: this.settings,
+          label: JSON.parse(JSON.stringify(this.label)),
+          fonts: JSON.parse(JSON.stringify(this.fonts)),
+          images: JSON.parse(JSON.stringify(this.images)),
+          settings: JSON.parse(JSON.stringify(this.settings)),
         };
+
+        if (appendAllow == false && this.his.data.length >= 1) {
+          this.his.data.length = this.his.step +1 ;
+        }
 
         this.his.data.push(newSettings);
         localStorage.history = JSON.stringify(this.his.data);
@@ -505,6 +526,9 @@ export default {
     },
   },
   watch: {
+    allowSave(newVal, oldVal) {
+      console.log(newVal, oldVal);
+    },
     "settings.rotation"(newVal, oldVal) {
       this.buildCode();
     },
@@ -521,7 +545,13 @@ export default {
       this.buildCode();
     },
     "his.data"() {
+      this.allowSave = false;
       this.his.step = this.his.data.length;
+    },
+    "his.step"() {
+      this.allowSave = false;
+      this.his.enable.forward = this.his.step < this.his.data.length;
+      this.his.enable.back = this.his.step > 1;
     },
   },
 };
