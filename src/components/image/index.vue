@@ -14,42 +14,46 @@
         <option v-for="(icon, idx) in icons" :key="idx" :value="icon.value"></option>
       </datalist>
 
-      <span class="input-group-text">Top</span>
-      <input
-        type="number"
-        :value="value.top"
-        class="form-control"
-        @input="update('top', $event.target.value)"
-        style="max-width: 100px"
-      />
-      <span class="input-group-text">Left</span>
-      <input
-        type="number"
-        :value="value.left"
-        class="form-control"
-        @input="update('left', $event.target.value)"
-        style="max-width: 100px"
-      />
+      <div class="border">
+        <span class="border border-0 rounded-0 position-absolute fs-7 overlay">Top</span>
+        <input
+          type="number"
+          :value="value.top"
+          class="form-control border border-0 rounded-0"
+          @input="update('top', $event.target.value)"
+          style="max-width: 100px"
+        />
+      </div>
+      <div class="border">
+        <span class="border border-0 rounded-0 position-absolute fs-7 overlay">Left</span>
+        <input
+          type="number"
+          :value="value.left"
+          class="form-control border border-0 rounded-0"
+          @input="update('left', $event.target.value)"
+          style="max-width: 100px"
+        />
+      </div>
       <div class="dropdown" data-bs-toggle="tooltip" title="TextAlign">
-      <button
-        data-bs-toggle="dropdown"
-        class="btn btn-light rounded-0 border"
-        style="z-index: unset"
-        type="button"
-      >
-        {{ defaultStyle(value.style) }}
-      </button>
-      <ul class="dropdown-menu">
-        <li
-          href="#"
-          v-for="(align, idx) in aligns"
-          :key="idx"
-          @click="update('style', align)"
+        <button
+          data-bs-toggle="dropdown"
+          class="btn btn-light rounded-0 border"
+          style="z-index: unset"
+          type="button"
         >
-          <a class="dropdown-item">{{ align }}</a>
-        </li>
-      </ul>
-    </div>
+          {{ defaultStyle(value.style) }}
+        </button>
+        <ul class="dropdown-menu">
+          <li
+            href="#"
+            v-for="(align, idx) in aligns"
+            :key="idx"
+            @click="update('style', align)"
+          >
+            <a class="dropdown-item">{{ align }}</a>
+          </li>
+        </ul>
+      </div>
       <button class="btn btn-danger" style="z-index: unset" @click="remove">
         <span class="mdi mdi-trash-can-outline me-1"></span>Remove
       </button>
@@ -64,7 +68,7 @@ import { ListAlign } from "../align.js";
 export default {
   name: "add",
   components: {},
-  props: ["value","index"],
+  props: ["value", "index"],
   data: function () {
     return {
       aligns: ListAlign,

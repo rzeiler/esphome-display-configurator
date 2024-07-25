@@ -3,10 +3,7 @@
     <UiEditor />
     <div class="p-4">
       display configuration UI by rzeiler &#x40; 2024 |
-      <a
-        href="https://esphome.io/components/display/"
-        title="Display Component"
-      >
+      <a href="https://esphome.io/components/display/" title="Display Component">
         esphome
       </a>
 
@@ -28,3 +25,10 @@ export default {
   },
 };
 </script>
+
+<style>
+.overlay {
+  margin: -8px 5px !important;
+  font-size: 10px !important;
+}
+</style>

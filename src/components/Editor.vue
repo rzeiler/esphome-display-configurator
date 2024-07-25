@@ -32,13 +32,12 @@
       </button>
 
       <button
-        class="btn btn-primary m-2 text-white "
+        class="btn btn-primary m-2 text-white"
         @click="openFile"
         data-bs-toggle="tooltip"
         title="Datei öffnen"
       >
-        
-      <span class="mdi mdi-folder-open-outline fs-4"></span>
+        <span class="mdi mdi-folder-open-outline fs-4"></span>
       </button>
 
       <button
@@ -47,10 +46,38 @@
         data-bs-toggle="tooltip"
         title="Datei Speichern"
       >
-      <span class="mdi mdi-content-save-outline fs-4"></span>
+        <span class="mdi mdi-content-save-outline fs-4"></span>
       </button>
 
       <span class="flex-grow-1"> </span>
+
+      <div
+        class="btn-group position-relative his"
+        data-bs-toggle="tooltip"
+        title="history"
+        role="group"
+      >
+        <button
+          type="button"
+          class="btn btn-primary text-white mdi mdi-arrow-u-left-top"
+          data-bs-toggle="tooltip"
+          title="back"
+          data-bs-placement="bottom"
+          @click="stepback()"
+        />
+        <button
+          type="button"
+          class="btn btn-primary text-white mdi mdi-arrow-u-right-top"
+          data-bs-toggle="tooltip"
+          title="forward"
+          data-bs-placement="bottom"
+          @click="stepforward()"
+        />
+        <span
+          v-html="his.step"
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger hisStep"
+        />
+      </div>
 
       <a
         href="https://github.com/rzeiler/esphome-display-configurator"
@@ -58,8 +85,8 @@
         ><span class="mdi mdi-github fs-1"></span
       ></a>
     </div>
-    <div class="d-flex flex-column mt-3 mb-3" style="min-width:300px">
-      <div class="btn-group" role="group" aria-label="Basic example">
+    <div class="d-flex flex-column mt-3 mb-3" style="min-width: 300px">
+      <div class="btn-group" role="group">
         <button
           type="button"
           class="btn btn-primary text-white mdi mdi-screen-rotation"
@@ -88,7 +115,52 @@
         />
       </div>
 
-      <display :labels="label"  :images="images" :settings="settings" @changed="someChanges" class="flex-fill" />
+      <display
+        :labels="label"
+        :images="images"
+        :settings="settings"
+        @changed="someChanges"
+        class="flex-fill"
+      />
+
+      <div class="btn-group mt-3" role="group">
+        <button
+          type="button"
+          class="btn btn-light"
+          data-bs-toggle="tooltip"
+          title="Display Preset"
+          data-bs-placement="bottom"
+          @click="
+            display_preset({
+              width: 255,
+              height: 122,
+              background: '#eeeeee',
+              text: '#333333',
+              name: 'e-ink',
+            })
+          "
+        >
+          E-Ink
+        </button>
+        <button
+          type="button"
+          class="btn btn-light"
+          data-bs-toggle="tooltip"
+          title="Display Preset"
+          data-bs-placement="bottom"
+          @click="
+            display_preset({
+              width: 64,
+              height: 32,
+              background: '#333333',
+              text: '#ffffff',
+              name: 'oled',
+            })
+          "
+        >
+          OLed
+        </button>
+      </div>
     </div>
     <div class="flex-grow-1 d-flex flex-column overflow-auto">
       <div class="p-4 flex-grow-1">
@@ -115,31 +187,30 @@
 
         <div class="input-group mb-3" v-for="font in fonts" :key="font.id">
           <span class="input-group-text">{{ font.name }}</span>
-          <input
-            type="number"
-            class="form-control"
-            v-model="font.size"
-            @change="changeSize(font)"
-          />
-          <button
-            class="btn btn-danger"
-            style="z-index: unset"
-            @click="removeFont(font)"
-          >
+          <div class="border">
+            <span class="border border-0 rounded-0 position-absolute fs-7 overlay"
+              >Size</span
+            >
+            <input
+              type="number"
+              class="form-control"
+              v-model="font.size"
+              @change="changeSize(font)"
+            />
+          </div>
+          <button class="btn btn-danger" style="z-index: unset" @click="removeFont(font)">
             <span class="mdi mdi-trash-can-outline me-1"></span>Remove
           </button>
         </div>
       </div>
     </div>
 
-<div class="card p-1 m-4 bg-dark text-white  shadow ">
-  <scrollbar class="h-100 w-100 p-2"  :settings="scrollbar_settings">
-    <pre class="overflow-visible" v-html="code"></pre>
-    </scrollbar>
+    <div class="card p-1 m-4 bg-dark text-white shadow">
+      <scrollbar class="h-100 w-100 p-2" :settings="scrollbar_settings">
+        <pre class="overflow-visible" v-html="code"></pre>
+      </scrollbar>
+    </div>
 
-</div>
-
-  
     <div
       v-if="choosFont"
       @click="choosFont = false"
@@ -192,11 +263,7 @@
             min="0"
             max="30"
           />
-          <button
-            class="btn btn-danger"
-            style="z-index: unset"
-            @click="addNewFont"
-          >
+          <button class="btn btn-danger" style="z-index: unset" @click="addNewFont">
             <span class="mdi mdi-check me-1"></span>Add
           </button>
         </div>
@@ -218,7 +285,7 @@ export default {
     display,
     TextItem,
     ImageItem,
-    scrollbar
+    scrollbar,
   },
   data: function () {
     return {
@@ -237,7 +304,6 @@ export default {
         rotation: 0,
       },
       allowSave: false,
-      his:[],
       scrollbar_settings: {
         suppressScrollY: false,
         suppressScrollX: false,
@@ -245,15 +311,18 @@ export default {
         wheelPropagation: true,
         minScrollbarLength: 50,
       },
+      his: {
+        data: [],
+        step: 1,
+        max: 1,
+      },
     };
   },
   mounted() {
     this.allowSave = false;
-    if (
-      localStorage.history != undefined &&
-      localStorage.history != "undefined"
-    ) {
-      this.his = JSON.parse(localStorage.history);
+    if (localStorage.history != undefined && localStorage.history != "undefined") {
+      this.his.data = JSON.parse(localStorage.history);
+
       this.reset();
     } else {
       this.fontData = { name: "Dosis", size: 15 };
@@ -267,8 +336,24 @@ export default {
   },
 
   methods: {
+    stepforward() {
+      this.his.step++;
+      this.reset();
+    },
+    stepback() {
+      this.his.step--;
+      this.reset();
+    },
+    display_preset(data) {
+      // width, height, background, text
+      this.settings.width = data.width;
+      this.settings.height = data.height;
+      this.settings.background = data.background;
+      this.settings.text = data.text;
+    },
     reset() {
-      let lastsettings = this.his[this.his.length - 1];
+      //let lastsettings = this.his.data[this.his.data.length - 1];
+      let lastsettings = this.his.data[this.his.step - 1];
       this.label = lastsettings.label;
       this.fonts = lastsettings.fonts;
       this.images = lastsettings.images;
@@ -282,7 +367,7 @@ export default {
         document.head.appendChild(file);
       });
     },
-    someChanges(a){
+    someChanges(a) {
       this.buildCode();
     },
     deleteText(txt) {
@@ -303,7 +388,7 @@ export default {
         (data) => {
           const history = JSON.parse(data);
 
-          this.his.push(history);
+          this.his.data.push(history);
 
           this.reset();
 
@@ -313,7 +398,7 @@ export default {
       );
     },
     saveFile() {
-      const content = JSON.stringify(this.his[this.his.length - 1]);
+      const content = JSON.stringify(this.his.data[this.his.data.length - 1]);
       SaveFile(content).then(
         (ok) => console.log(ok),
         (stop) => console.log(stop)
@@ -392,8 +477,8 @@ export default {
           settings: this.settings,
         };
 
-        this.his.push(newSettings);
-        localStorage.history = JSON.stringify(this.his);
+        this.his.data.push(newSettings);
+        localStorage.history = JSON.stringify(this.his.data);
       }
     },
     addNewFont() {
@@ -435,6 +520,9 @@ export default {
     images(newVal, oldVal) {
       this.buildCode();
     },
+    "his.data"() {
+      this.his.step = this.his.data.length;
+    },
   },
 };
 </script>
@@ -446,41 +534,13 @@ export default {
   height: 100vh;
 }
 
-#display {
-  position: relative;
-  border: 3px solid #000000;
-  background-color: #000000;
-  box-shadow: 0px 0px 10px #000000;
-  width: 128px;
-  height: 64px;
+.his:hover .hisStep {
+  opacity: 1;
 }
 
-.board {
-  display: inline-block;
-  border: 5px solid #1b497e;
-  background-color: #17599b;
-  padding: 20px 10px 30px 10px;
-  border-radius: 7px;
-  margin: 100px;
-}
-
-label {
-  user-select: none;
-  position: absolute;
-  color: #fff;
-}
-
-.hole {
-  border: 2px solid #aaa;
-  height: 12px;
-  width: 12px;
-  background-color: rgba(
-    var(--bs-tertiary-bg-rgb),
-    var(--bs-bg-opacity)
-  ) !important;
-}
-
-.line {
-  background-color: red;
+.hisStep {
+  z-index: 2;
+  opacity: 0.5;
+  transition: all 0.2s ease-in-out;
 }
 </style>
